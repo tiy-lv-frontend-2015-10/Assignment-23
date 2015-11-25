@@ -28,7 +28,8 @@ After completing this assignment, you should...
 * You should have a button to remove all completed items from the list.
 * You should store all todos in a parse.com database and load them on page load.
 
-Example:
+Example
+
 ![Example](assets/todo.gif)
 
 ### Deliverables
