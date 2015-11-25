@@ -21,12 +21,14 @@ After completing this assignment, you should...
 * Replicate the following behavior using React.
 * You should be able to mark an item as completed.
 * You should be able to remove an item from the list (completed or not).
+* You should store all todos in a parse.com database and load them on page load.
+
+## Hard Mode
 * You should add filters for 
   - All Items (completed or not)
   - Completed items
   - Active items 
 * You should have a button to remove all completed items from the list.
-* You should store all todos in a parse.com database and load them on page load.
 
 Example
 
