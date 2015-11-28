@@ -1,5 +1,5 @@
 #container {
-	width: 45%;
+	width: 50%;
 	margin: auto;
 	background: #F4F4F4;
 	border-radius: 6px;
@@ -15,7 +15,7 @@
 }
 
 #notepad {
-	width: 80%;
+	width: 85%;
 	margin: auto;
 	margin-top: -10px;
 }
