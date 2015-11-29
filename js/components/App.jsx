@@ -9,7 +9,7 @@ module.exports = React.createClass({
 			<div>
 				<h1>todos</h1>
 					<div id="notepad">
-						<Paper zDepth={4}>
+						<Paper zDepth={5}>
 						  <AddNew />
 						</Paper>
 					</div>
