@@ -3,14 +3,14 @@ var ReactDOM = require('react-dom');
 require('../../main.css');
 
 var ToDoApp = React.createClass({
-	getInitialState: function(){
+	getInitialState: function() {
 		return {items: []};
 	},
-	updateItems: function(newItem){
+	updateItems: function(newItem) {
 		var allItems = this.state.items.concat([newItem]);
 		this.setState({items: allItems});
 	},
-	render: function(){
+	render: function() {
 		return (
 			<div>
 				<TodoBanner/>
