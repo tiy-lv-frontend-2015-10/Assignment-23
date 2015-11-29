@@ -1,11 +1,14 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-require('../../main.css');
+var Backbone = require('backbone');
+var BackboneParse = require('../backbone-parse.js');
+require('../../../main.css');
+require('../main.js');
 
 var ToDoBanner = React.createClass({
 	render: function() {
 		return (
-			<h3>TO DO List</h3>
+			<h1>TO DO List</h1>
 		);
 	}
 });

@@ -1,6 +1,7 @@
-var Backbone = require('backbone');
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Backbone = require('backbone');
+
 var ToDo = require('./components/toDo.jsx');
 var ToDoList = require('./components/toDoList.jsx');
 var ToDoListItem = require('./components/toDoListItem.jsx');

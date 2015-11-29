@@ -1,6 +1,9 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Backbone = require('backbone');
+var BackboneParse = require('../backbone-parse.js');
 require('../../main.css');
+require('../main.js');
 
 var ToDoApp = React.createClass({
 	getInitialState: function() {
@@ -13,9 +16,9 @@ var ToDoApp = React.createClass({
 	render: function() {
 		return (
 			<div>
-				<TodoBanner/>
-				<TodoList items={this.state.items}/>
-				<TodoForm onFormSubmit={this.updateItems}/>
+				<ToDoBanner/>
+				<ToDoList items={this.state.items}/>
+				<ToDoForm onFormSubmit={this.updateItems}/>
 			</div>
 		);
 	}
@@ -23,4 +26,4 @@ var ToDoApp = React.createClass({
 
 ReactDOM.render(<ToDoApp />, document.getElementById('toDoDiv'));
 
-module.exports = ToDoApp;
+//module.exports = ToDoApp;

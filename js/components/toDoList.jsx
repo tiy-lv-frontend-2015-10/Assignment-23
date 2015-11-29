@@ -1,6 +1,9 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Backbone = require('backbone');
+var BackboneParse = require('../backbone-parse.js');
 require('../../main.css');
+require('../main.js');
 
 var ToDoList = React.createClass({
 	render: function() {
@@ -15,4 +18,4 @@ var ToDoList = React.createClass({
 
 ReactDOM.render(<ToDoList />, document.getElementById('listDiv'));
 
-module.exports = ToDoList;
+exports = ToDoList;
