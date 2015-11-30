@@ -17,21 +17,4 @@ var ToDoList = Backbone.Model.extend({
 	_parse_class_name: "ToDoList"
 });
 
-
-var MyDoList = new ToDoList();
-	
-	MyDoList.fetch({
-		success: function(resp) {
-			data=(resp.toJSON());
-			console.log("success: ", resp);
-		}, 
-		error: function(err) {
-			console.log("error: ", err);
-		},
-		ReactDOM.render(<MyDoList data={data} />, document.getElementById('subDiv'))
-	});
-
-		
-
-
 });//closes document ready
