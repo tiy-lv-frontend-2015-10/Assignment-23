@@ -30,37 +30,59 @@ var ToDo = React.createClass({
 	_submit: function(e) {
 		e.preventDefault();
 		var input = $("#input").val();
-		var listNew = new listCollection();
-		listNew.set({
-			'list':$("#input").val()
+		var listed= new List();
+		
+
+		listed.set({
+			'list':input
 		})
-		listNew.save(null,{
-			success: function(resp) {
-				console.log(resp);
-			},
-			error: function(err) {
-				console.log(err);
-			}
-		})
+		
+		listed.save(null, {
+	 		success: function(resp) {
+	 			console.log(resp);
+
+	 		}
+	 	});
+	 	$("#input").val('')
+		
+	 	
+
 	},
 	render: function(){
-		return(<div>
-			<h1>Todos</h1>
-			<form onSubmit={this._submit}>
-			<input id="input" placeholder="What needs to be done?"/>
-			
-			</form>
-			</div>)
+		return(	<div>
+				<h1>Todos</h1>
+				<form onSubmit={this._submit}>
+				<input id="input" placeholder="What needs to be done?"/>
+				
+				</form>
+			</div>
+		)
 	}
 });
 
 //list todo
 var Sub = React.createClass({
-	render:function() {
+	
+	_Click: function(e) {
+		e.preventDefault();
+		console.log("test");
+		
+	},
+   	render:function() {
 		var listData=this.props.data.map(function(obj){
-			return(<p className="task">{obj.list}</p>)
+			return(<div key={obj.objectId} className="listContainer">
+				
+				<input className="check" type="checkbox" onClick={this._click}/>
+				<p className="task">{obj.list}</p>
+				</div>)
 		})
 		return(<div>{listData}</div>)
+	}
+})
+
+var inputAdd = React.createClass({
+	render: function() {
+		return(<p className="task" value={this.props.input}></p>)
 	}
 })
 
