@@ -4,20 +4,18 @@ var Backbone = require('backbone');
 
 
 
-var ListBox= React.createClass({
-	render: function () {
+var ListsList = React.createClass ({
+	render: function() {
 		return (
 			<div className="commentbox">
-			<h1>comments</h1>
-			<CommentList />
-			<CommentForm />
+				<h1> comments </h1>
+				<List />
+				<ListForum />
 			</div>
 
-
-		)
+			);
 	}
-
 
 });
 
-module.exports= ListBox;
+module.exports= ListsList;

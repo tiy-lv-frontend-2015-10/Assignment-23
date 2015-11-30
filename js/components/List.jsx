@@ -2,7 +2,7 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
 
-var CommentList = React.createClass({
+var List = React.createClass({
   render: function() {
     return (
       <div className="commentList">
@@ -12,7 +12,7 @@ var CommentList = React.createClass({
   }
 });
 
-var CommentForm = React.createClass({
+var ListForum = React.createClass({
   render: function() {
     return (
       <div className="commentForm">
@@ -22,5 +22,5 @@ var CommentForm = React.createClass({
   }
 });
 
-module.exports = CommentList;
-module.exports = CommentForm;
+module.exports = List;
+module.exports = ListForum;
