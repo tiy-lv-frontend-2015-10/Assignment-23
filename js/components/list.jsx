@@ -25,10 +25,11 @@ var listItem = Backbone.Model.extend({
 	lists.fetch({
 		success: function(resp) {
 			data = (resp.toJSON());
-			ReactDOM.render(<Sub data = {data} />, document.getElementById('subContainer'))
 			console.log('success ');
 		},
 		error: function(err) {
 			console.log('err ');
 		}
 	});
+
+ReactDOM.render(<Sub data = {data} />, document.getElementById('subContainer'));
