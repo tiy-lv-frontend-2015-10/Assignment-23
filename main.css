@@ -1,5 +1,18 @@
-input {
+body{
+	font-family: 'Quicksand', sans-serif;
+}
+.container{
+	margin: 10px auto;
 	width: 50%;
+	
+}
+
+.container h1{
+	text-align: center;
+}
+
+input {
+	width: 100%;
 	font-size: 2em;
 
 }
