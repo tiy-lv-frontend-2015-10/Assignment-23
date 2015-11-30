@@ -1,4 +1,4 @@
-var Backbone = require ('backbone-parse');
+var Backbone = require('backbone-parse');
 
 $.ajaxSetup({
   headers: {

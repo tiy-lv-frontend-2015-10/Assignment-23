@@ -3,7 +3,6 @@ var ReactDOM = require('react-dom');
 var Backbone = require('../backbone');
 
 
-
 var ListsList = React.createClass ({
 	render: function() {
 		return (

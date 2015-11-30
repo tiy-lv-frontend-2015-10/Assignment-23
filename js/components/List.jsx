@@ -1,12 +1,12 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Backbone = require('../backbone');
+var Backbone = require('../backbone-parse');
 
 var List = React.createClass({
   render: function() {
     return (
       <div className="commentList">
-        console.log("Hello, world! I am a CommentList.")
+       gdhdfgfhgfhjdf
       </div>
     );
   }
@@ -16,7 +16,7 @@ var ListForum = React.createClass({
   render: function() {
     return (
       <div className="commentForm">
-       console.log("Hello, world! I am a CommentForm.");
+       bdbgsbgf
       </div>
     );
   }
