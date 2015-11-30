@@ -1,3 +1,7 @@
 body {
-	background-color: orange;
+	background-color: lightgray;
+}
+
+.header {
+	font-align: center;
 }

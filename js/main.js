@@ -1,5 +1,3 @@
-$(document).ready(function(){
-
 $.ajaxSetup({
   headers: {
     'X-Parse-Application-Id': 'efLV9fVDe5jmrjnjGyph9QZMvf16mdWwGfGawP8y',
@@ -17,4 +15,4 @@ var ToDoList = Backbone.Model.extend({
 	_parse_class_name: "ToDoList"
 });
 
-});//closes document ready
+module.exports = ToDoList;

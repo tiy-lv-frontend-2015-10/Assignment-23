@@ -8,7 +8,7 @@ require('../main.js');
 var ToDoBanner = React.createClass({
 	render: function() {
 		return (
-			<h1>TO DO List</h1>
+			<h1 className="header">TO DO List</h1>
 		);
 	}
 });
