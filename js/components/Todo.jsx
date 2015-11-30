@@ -11,26 +11,15 @@ var BottomEdge = require('./bottomEdge.jsx');
 module.exports = React.createClass({
 
 	render: function() {
-		var itemList = new TodoList();
-		itemList.fetch({
-			success: function(resp){
-			// itemList = resp.toJSON();
-			},
-				error: function(err) {
-					console.log(err);
-				}
-		})
-		blah = itemList.toJSON();
-		console.log(blah);
+		console.log(this.props.data);
 		return (
 			<div>
 				<Paper id='todo-backing'>
-				<p>this is where the todos go</p>
-				<p>this is where the todos go</p>
-				<p>this is where the todos go</p>
+				<ul>
+
+				</ul>
 				</Paper>
 				<ListFooter />
-
 			</div>
 		)
 	},
