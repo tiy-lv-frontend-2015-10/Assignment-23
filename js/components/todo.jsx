@@ -43,15 +43,18 @@ var TodoForm = React.createClass({
       },
       error: function(err) {
         console.log('error', err)
-      }
+      },
     });
+    $("#input").val('');
   },
   render: function() {
-    return (<form onSubmit={this._submit}>
-      <input id='input' type ='text'/>
-      <input type ='submit' value='Add'/>
-    </form>)
-  }
+    return (
+      <form onSubmit={this._submit}>
+        <input id='input' type ='text' placeholder='Can Only post to parse?'/>
+        <input type ='submit' value='Add'/>
+      </form>
+    )
+  },
 });
 
 module.exports=TodoForm;
