@@ -29,17 +29,29 @@ TodoListsCollection.fetch({
   }
 });
 
-var todolist = new TodoList();
-
-todolist.set({
-
-})
-
-todolist.save(null, {
-  success: function(resp) {
-    console.log("success", resp);
+var TodoForm = React.createClass({
+  _submit: function(e) {
+    e.preventDefault();
+    var input = $('#input').val();
+    var todo = new TodoList();
+    todo.set({
+      'ToDo':input
+    })
+    todo.save(null, {
+      success: function(resp) {
+        console.log('success', resp)
+      },
+      error: function(err) {
+        console.log('error', err)
+      }
+    });
   },
-  error: function(err) {
-    console.log("error", err)
+  render: function() {
+    return (<form onSubmit={this._submit}>
+      <input id='input' type ='text'/>
+      <input type ='submit' value='Add'/>
+    </form>)
   }
 });
+
+module.exports=TodoForm;
