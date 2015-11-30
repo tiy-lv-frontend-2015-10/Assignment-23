@@ -5,9 +5,7 @@ var TextField = require('material-ui/lib/text-field');
 
 
 module.exports = React.createClass({
-	// componentWillMount: function() {
-	//
-	// },
+
 	getInitialState: function(){
 		return {
 			text: ''
@@ -23,7 +21,7 @@ module.exports = React.createClass({
 		});
 		newTodo.save({}, {
 			success: function(resp){
-				console.log(resp);
+				// console.log(resp);
 			},
 			error: function(err){
 				console.log(err);
@@ -33,7 +31,6 @@ module.exports = React.createClass({
 	},
 	 handleTextChange: function(evt) {
 			 this.setState({text: evt.target.value});
-			 console.log(this.state.text);
 	 },
 	render: function(){
 		return (
