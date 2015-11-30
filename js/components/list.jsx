@@ -15,19 +15,20 @@ var listItem = Backbone.Model.extend({
 
 	var List = new listItem();
 
-		var listCollection = Backbone.Collection.extend({
-			model: listItem,
-			_parse_class_name: 'myList'
-		});
+	var listCollection = Backbone.Collection.extend({
+		model: listItem,
+		_parse_class_name: 'myList'
+	});
 
-		var lists = new listCollection();
+	var lists = new listCollection();
 
-		lists.fetch({
-			success: function(resp) {
-				data = (resp.toJSON());
-				ReactDOM.render(<Sub data = {data} />,document.getElementById('subContainer'))
-			}
-			error: function(err) {
-				console.log('err ');
-			}
-		});
+	lists.fetch({
+		success: function(resp) {
+			data = (resp.toJSON());
+			ReactDOM.render(<Sub data = {data} />, document.getElementById('subContainer'))
+			console.log('success ');
+		},
+		error: function(err) {
+			console.log('err ');
+		}
+	});

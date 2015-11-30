@@ -7,15 +7,15 @@ var ToDo = React.createClass({
 		var input = $("#newToDo").val();
 		var newList = new listCollection();
 		newList.set({
-			'myList':$("#newToDo").val()
+			'title':$("#newToDo").val()
 		})
 		newList.save(null,{
 			success: function(resp) {
 				console.log('resp');
 			},
 			error: function(err) {
-				console.log('err ');
-			}
+				console.log('err');
+			} 
 		})
 	},
 	render: function(){
@@ -33,13 +33,13 @@ var Sub = React.createClass({
 	render:function() {
 		var listData = this.props.data.map(function(obj){
 			return (
-				<p className="list">{obj.myList}</p>
+				<span className="list">{obj.myList}</span>
 				)
 		})
 		return(
 			<div>{listData}</div>
 			)
 	}
-})
+});
 
-ReactDOM.render(<ToDo />, document.getElementById('mainContainer'))
+ReactDOM.render(<ToDo />, document.getElementById('mainContainer'));
