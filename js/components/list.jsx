@@ -68,7 +68,7 @@ var AddInput = React.createClass({
   render:function() {
     return(
       <form onSubmit={this._submit}>
-        <input id='addItem' type ='text'/>
+        <input id='addItem' type ='text' placeholder = "add new item"/>
         <input type ='submit' value='Add'/>
       </form>
     )

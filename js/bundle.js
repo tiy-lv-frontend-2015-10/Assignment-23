@@ -49,7 +49,7 @@
 	var List = __webpack_require__(159);
 	var Backbone = __webpack_require__(161);
 
-	ReactDOM.render(React.createElement(List, null), document.getElementById('container'));
+	ReactDOM.render(React.createElement(List, null), document.getElementById('list'));
 
 /***/ },
 /* 1 */
@@ -19647,39 +19647,57 @@
 	var Backbone = __webpack_require__(161);
 	var BackboneParse = __webpack_require__(163);
 
-	var TodoList = Backbone.Model.extend({
+
+	var List = Backbone.Model.extend({
 	  initialize: function() {
 	    },
 	    Defaults: {
 	      item: null
 	    },
-	    model: TodoList,
+	    model: List,
 	    _parse_class_name:'listItem'
 	});
 
-	var TodoLists = Backbone.Collection.extend({
-	  model: TodoList,
+	var Lists = Backbone.Collection.extend({
+	  model: List,
 	  _parse_class_name:'listItem'
 	});
 
-	var TodoListsCollection = new TodoLists();
+	var ListsCollection = new Lists();
 
-	TodoListsCollection.fetch({
+	ListsCollection.fetch({
 	  success: function(resp) {
-	    console.log('success', resp);
-	  },
-	  error: function(err) {
-	    console.log('error', err);
+	    var data = resp.toJSON();
+	    console.log(data);
+	    ReactDOM.render(React.createElement(AddForm, {data: data}), document.getElementById('add'));
+
 	  }
 	});
 
-	var TodoForm = React.createClass({displayName: "TodoForm",
+	var AddForm = React.createClass({displayName: "AddForm",
+	  render: function() {
+	    var mapped = this.props.data.map(function(list) {
+	    return (
+	      React.createElement("div", {key: list.objectId}, 
+	        React.createElement("ul", null, 
+	          React.createElement("li", null, 
+	           list.item
+	          )
+	        )
+	      )
+	    )
+	  })
+	    return (React.createElement("div", null, mapped))
+	  }
+	});
+
+	var AddInput = React.createClass({displayName: "AddInput",
 	  _submit: function(e) {
 	    e.preventDefault();
 	    var add = $('#addItem').val();
-	    var item = new TodoList();
+	    var item = new List();
 	    item.set({
-	      'item':input
+	      'item':add
 	    })
 	    item.save(null, {
 	      success: function(resp) {
@@ -19687,21 +19705,32 @@
 	      },
 	      error: function(err) {
 	        console.log('error', err)
-	      },
-	    });
-	    $("#addItem").val('');
+	      }
+	    })
+	    $("#addItem").val('')
 	  },
-	  render: function() {
-	    return (
+	  render:function() {
+	    return(
 	      React.createElement("form", {onSubmit: this._submit}, 
-	        React.createElement("input", {id: "addItem", type: "text", placeholder: "Can Only post to parse?"}), 
+	        React.createElement("input", {id: "addItem", type: "text"}), 
 	        React.createElement("input", {type: "submit", value: "Add"})
 	      )
 	    )
-	  },
+	  }
+	});
+	var ToDo = React.createClass({displayName: "ToDo",
+	   render:function() {
+	    return(
+	      React.createElement("div", null, 
+	        React.createElement(AddInput, null), 
+	        React.createElement(AddForm, null)
+	      )
+	    )
+	  }
 	});
 
-	module.exports=TodoForm;
+	module.exports=ToDo;
+	module.exports=AddInput;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(160)))
 
 /***/ },
