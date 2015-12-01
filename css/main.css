@@ -1,0 +1,20 @@
+body {
+	width: 50%;
+	margin: auto;
+	position: relative;
+	margin-top: 10%;
+	font-family: sans-serif;
+}
+
+#newToDo {
+	width: 50%;
+	height: 25px;
+	padding-left: 15px;
+	font-size: 12px;
+	border: 1px solid gray;
+}
+
+#subContainer {
+	width: 53%;
+	height: 100px;
+}
