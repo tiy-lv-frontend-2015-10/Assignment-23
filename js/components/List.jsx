@@ -1,27 +1,43 @@
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Backbone = require('../backbone-parse');
+var Backbone = require ('backbone-parse');
 
-var List = React.createClass({
-  render: function() {
-    return (
-      <div className="commentList">
-       gdhdfgfhgfhjdf
-      </div>
-    );
+$.ajaxSetup({
+  headers: {
+    'X-Parse-Application-Id': 'qcDfkE1uVCWcQ57Dks8oJqmvIUn1YP566iRRcwrQ',
+    'X-Parse-REST-API-Key': 'WhQcyjYLOXfsD5XFboT6wvlZw2qeamHm5BFh9qnG'
   }
 });
 
-var ListForum = React.createClass({
-  render: function() {
-    return (
-      <div>
-      <input className="commentForm" />
-     
-      </div>
-    );
-  }
+var Todo = backbone.Model.extend({
+	initialize: function () {
+
+	},
+	defualts: {
+		item: null,
+
+	},
+	_parse_class: "Todo"
+
+})
+
+var todo = backbone.Collection.extend({
+	model: Todo,
+	_parse_class: "Todo"
+})
+
+var TodoCollection = new Todo;
+
+TodoCollection.fetch({
+	success: function(resp){
+		console.log("success: ", resp);
+	},error: function(err){
+		console.log("error: ", err);
+	}
+})
+},
+error: function(err){
+	console.log(err)
+} 
 });
 
-module.exports = List;
-module.exports = ListForum;
+
+
