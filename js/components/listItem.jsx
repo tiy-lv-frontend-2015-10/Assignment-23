@@ -4,8 +4,7 @@ var Backbone = require ('backbone');
 var BackboneParse = require ('../../backbone-parse.js');
 
 
-
-var ListItem = Backbone.Model.extend({
+var listItem = Backbone.Model.extend({
 			initialize: function() {
 			},
 			defaults: {
@@ -21,17 +20,21 @@ var ListItem = Backbone.Model.extend({
 
 	var lists = new listCollection();
 
-	lists.fetch({
-		success: function(resp) {
-			itemData = {resp.toJSON()};
-			ReactDOM.render(<Sub itemData={itemData} />, document.getElementById('itemContainer'));
-			console.log('success ', resp);
-		},
-		error: function(err) {
-			console.log('err ', err);
-		},
-	});
 
+ 	lists.fetch({
+ 		success: function(resp) {
+			data = (resp.toJSON());
+			console.log('success ');
+			itemData = (resp.toJSON());
+			ReactDOM.render(<Sub itemData = {itemData} />, document.getElementById('subContainer'))
+			console.log('success ', resp);
+ 		},
+ 		error: function(err) {
+ 			console.log('err ');
+		}
+		},
+ 	});
+ 
 var Sub = React.createClass({
 	render: function() {
 		var listData = this.props.itemData.map(function(obj){
@@ -44,21 +47,20 @@ var Sub = React.createClass({
 		)
 	}
 });
-
 var ToDo = React.createClass({
 	_handleSubmit: function(e) {
 		e.preventDefault();
-		var newItem = new ListItem();
-
-		newItem.set({
+		var newListItem = new listItem();
+		newListItem.set({
 			title: $("#newToDo").val()
 		})
 		title: $('#newToDo').val("");
-			newItem.save(null, {
+			newListItem.save(null, {
 				success: function(resp) {
 					console.log('success ', resp);
 					listCollection.fetch({
 						success: function(resp){
+							console.log('success ', resp);
 						},
 						error: function(err){
 						}
