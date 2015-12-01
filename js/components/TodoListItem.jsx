@@ -1,5 +1,4 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
 var Backbone = require('../backbone-parse');
 var TodoItem = require('../models/todoItem');
 var Paper = require('material-ui/lib/paper');
@@ -20,15 +19,21 @@ module.exports = React.createClass({
 			done: this.props.data.completed
 		}
 	},
-	_handleClick: function(){
-		this.setState({done: true})
+	_handleDoneChange: function(e){
+		e.preventDefault();
+		// this.setState({done: true}),
+		$('.text-place').toggleClass('strikeout');
+	},
+	_handleDelete: function(){
+
 	},
 	render: function(){
 		return (
-			<div key={this.props.data.objectId} className="item-block">
+			<div key={this.props.data.objectId} id={this.props.data.objectId} className="item-block">
 				<li>
-					<span><input className="check" type="checkbox" onClick={this._handleClick}/></span>
+					<span><input className="check" type="checkbox" onChange={this._handleDoneChange}/></span>
 					<span className="text-place">{this.props.data.todoItem}</span>
+					<span className="x-out" onClick={this._handleDelete}>X</span>
 				</li>
 				<ListDivider />
 			</div>

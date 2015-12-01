@@ -14,7 +14,7 @@ ul {
 #container h1 {
 	font-family: 'Lato', sans-serif;
 	font-weight: 100;
-	font-size: 3.5rem;
+	font-size: 4rem;
 	color: #00BCD4;
 }
 
@@ -51,7 +51,16 @@ li {
 	position: absolute;
 	top: 15px;
 	left: 40px;
-	/*text-align: left;*/
+}
+.x-out {
+	position: absolute;
+	top: 15px;
+	right: 25px;
+	color: #666;
+}
+.strikeout {
+	text-decoration: line-through;
+	color: #C4BEBE;
 }
 #list_footer{
 	position: relative;
@@ -67,7 +76,6 @@ li {
 	margin-top: -10px;
 }
 
-
 #left-todo {
 	position: absolute;
 	left: 40px;
@@ -77,13 +85,13 @@ li {
 }
 #button-panel {
 	position: absolute;
-	left: 70px;
+	left: 80px;
 	margin-top: 3px;
-
 }
+
 .filters {
 	display: inline-block;
-	margin-right: 10px;
+	margin-right: 25px;
 	/*margin-bottom: 8px;*/
 }
 .buttons {

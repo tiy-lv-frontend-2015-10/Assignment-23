@@ -25,7 +25,7 @@ module.exports = React.createClass({
 				}
 			})
   },
-	_updateList: function(newTodo) {
+	_upList: function(newTodo) {
 		itemList.add(newTodo);
 		this.setState({list: itemList.toJSON()})
 	},
@@ -36,7 +36,7 @@ module.exports = React.createClass({
 					<h1>todos</h1>
 						<div id="notepad">
 							<Paper zDepth={4} id="top-mast">
-							  <AddNew upList={this._updateList}/>
+							  <AddNew upList={this._upList}/>
 							</Paper>
 						 <Todo list={this.state.list} />
 						</div>
