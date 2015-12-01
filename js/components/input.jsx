@@ -22,18 +22,19 @@ var Input = React.createClass({
 	_submit: function(e) {
 		e.preventDefault();
 		var props = this.props;
-		console.log('props', props);
 		listed = new List();
 		var inputItem=$("#inputItem").val()
+
 		listed.set({
 			'list': inputItem
 		})
 		
 		listed.save(null, {
 	 		success: function(resp) {
+	 			$("#inputItem").val('')
 	 			console.log(resp);
 				props.addInput(inputItem);
-				$("#input").val('')
+				
 	 		}
 	 	});
 	 	
