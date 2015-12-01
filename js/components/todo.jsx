@@ -3,6 +3,7 @@ var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
 var BackboneParse = require('../../backbone-parse.js');
 
+
 var TodoList = Backbone.Model.extend({
   initialize: function() {
     },
@@ -22,16 +23,34 @@ var TodoListsCollection = new TodoLists();
 
 TodoListsCollection.fetch({
   success: function(resp) {
-    console.log('success', resp);
-  },
-  error: function(err) {
-    console.log('error', err);
+
+    var data = resp.toJSON();
+    console.log(data);
+    ReactDOM.render(<TodoForm data={data}/>, document.getElementById('listItem'));
+
   }
 });
 
 var TodoForm = React.createClass({
-  _submit: function(e) {
-    e.preventDefault();
+  render: function() {
+    var mapped = this.props.data.map(function(obj) {
+    return (
+      <div>
+        <ul>
+          <li>
+            {obj.ToDo}
+          </li>
+        </ul>
+      </div>
+    )
+  })
+    return (<div>{mapped}</div>)
+  }
+});
+
+var FormInput = React.createClass({
+  _submit: function() {
+    //e.preventDefault();
     var input = $('#input').val();
     var todo = new TodoList();
     todo.set({
@@ -43,18 +62,29 @@ var TodoForm = React.createClass({
       },
       error: function(err) {
         console.log('error', err)
-      },
-    });
-    $("#input").val('');
+      }
+    })
+    $("#input").val('')
   },
-  render: function() {
-    return (
+  render:function() {
+    return(
       <form onSubmit={this._submit}>
         <input id='input' type ='text' placeholder='Can Only post to parse?'/>
         <input type ='submit' value='Add'/>
       </form>
     )
-  },
+  }
+});
+var Total = React.createClass({
+   render:function() {
+    return(
+      <div>
+        <FormInput/>
+        <TodoForm/>
+      </div>
+    )
+  }
 });
 
-module.exports=TodoForm;
+module.exports=Total;
+module.exports=FormInput;
