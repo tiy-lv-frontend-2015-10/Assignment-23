@@ -1,10 +1,11 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
-var BackboneParse = require('../backbone-parse.js');
-require('./toDoBanner.jsx');
-require('./toDoList.jsx');
-require('./toDoForm.jsx');
+var BackboneParse = require('../backbone-parse');
+var ToDoBanner = require('./toDoBanner.jsx');
+var ToDoList = require('./toDoList.jsx');
+var ToDoForm = require('./toDoForm.jsx');
+
 require('../../main.css');
 require('../main.js');
 
@@ -24,8 +25,24 @@ var ToDoApp = React.createClass({
 				<ToDoForm onFormSubmit={this.updateItems}/>
 			</div>
 		);
+	},
+});
+
+var Dos = React.createClass({
+	render: function() {
+		var doData = this.props.doItems.map(function(obj) {
+			return (
+				<div className="doData">
+					<obj.ToDoList}
+				</div>
+				)
+		})
+		return (
+			<div>{doData}</div>
+			)
 	}
 });
+
 
 ReactDOM.render(<ToDoApp />, document.getElementById('toDoDiv'));
 

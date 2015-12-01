@@ -1,5 +1,5 @@
 var Backbone = require('backbone');
-var parseCred = require('./parse-credentials.json');
+//var parseCred = require('./parse-credentials.json');
 
 /****** PARSE API ACCESS CREDENTIALS ******/
 var application_id = "efLV9fVDe5jmrjnjGyph9QZMvf16mdWwGfGawP8y";

@@ -1,7 +1,7 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Backbone = require('backbone');
-var BackboneParse = require('../backbone-parse.js');
+var BackboneParse = require('../backbone-parse');
 require('../../main.css');
 require('../main.js');
 
