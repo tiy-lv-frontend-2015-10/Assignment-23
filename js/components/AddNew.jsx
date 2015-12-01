@@ -11,7 +11,13 @@ module.exports = React.createClass({
 			text: ''
 		}
 	},
-	handleSubmit: function(e) {
+	_handleTextChange: function(evt) {
+			this.setState({text: evt.target.value});
+	},
+	_handleUpdate: function(newTodo) {
+		this.props.upList(newTodo);
+	},
+	_handleSubmit: function(e) {
 		e.preventDefault();
 		var newTodo = new TodoItem();
 		newTodo.set({
@@ -21,26 +27,24 @@ module.exports = React.createClass({
 		});
 		newTodo.save({}, {
 			success: function(resp){
-				// console.log(resp);
 			},
 			error: function(err){
 				console.log(err);
 			}
 		});
-		this.setState({text: ''})
+		this._handleUpdate(newTodo);
+		this.setState({text: ''});
 	},
-	 handleTextChange: function(evt) {
-			 this.setState({text: evt.target.value});
-	 },
+
 	render: function(){
 		return (
-		<form onSubmit={this.handleSubmit}>
+		<form onSubmit={this._handleSubmit}>
 			<TextField
   		hintText="Add ToDo Item Here..."
   		hintStyle={{fontStyle: 'italic'}} ref="userInput"
 			autoFocus={true}
 			value={this.state.text}
-			onChange={this.handleTextChange}/>
+			onChange={this._handleTextChange}/>
 		</form>
 		)
 	}

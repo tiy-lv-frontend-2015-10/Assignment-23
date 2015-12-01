@@ -1,10 +1,14 @@
+ul {
+	list-style: none;
+}
+
 #container {
 	width: 50%;
 	margin: auto;
 	background: #F4F4F4;
 	border-radius: 6px;
 	text-align: center;
-	padding-bottom: 20px;
+	padding-bottom: 60px;
 }
 
 #container h1 {
@@ -19,12 +23,38 @@
 	margin: auto;
 	margin-top: -5px;
 }
+#top-mast {
+	padding: 10px 0;
+}
+#todo-panel {
+	margin-bottom: -10px;
+}
 #todo-backing {
-	/*margin-bottom: 40px;*/
+	padding: 10px 0 10px 0;
+}
+.item-block {
+	position: relative;
+	margin-left: -40px;
+	padding-top: 15px;
+	padding-bottom: 10px;
+	height: 30px;
+}
+li {
+	position: relative;
+}
+.check {
+	position: absolute;
+	left: 10px;
+	top: 15px;
+}
+.text-place {
+	position: absolute;
+	top: 15px;
+	left: 40px;
+	/*text-align: left;*/
 }
 #list_footer{
 	position: relative;
-	margin-top: -20px;
 	width: 100;
 	height: 45px;
 	padding-top: 5px;
@@ -33,6 +63,11 @@
 	margin: auto;
 	/*margin-bottom: -5px;*/
 }
+#foot-pad {
+	margin-top: -10px;
+}
+
+
 #left-todo {
 	position: absolute;
 	left: 40px;
