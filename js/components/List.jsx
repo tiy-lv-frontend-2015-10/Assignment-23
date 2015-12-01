@@ -15,8 +15,9 @@ var List = React.createClass({
 var ListForum = React.createClass({
   render: function() {
     return (
-      <div className="commentForm">
-       bdbgsbgf
+      <div>
+      <input className="commentForm" />
+     
       </div>
     );
   }
