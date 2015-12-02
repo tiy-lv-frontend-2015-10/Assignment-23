@@ -1,9 +1,7 @@
 var React = require('react');
 var Backbone = require('../backbone-parse');
 var TodoItem = require('../models/todoItem');
-var Paper = require('material-ui/lib/paper');
-var Checkbox = require('material-ui/lib/checkbox');
-var ListItem = require('material-ui/lib/lists/list-item');
+var TodoList = require('../collections/todoList');
 var ListDivider = require('material-ui/lib/lists/list-divider');
 
 
@@ -15,28 +13,51 @@ module.exports = React.createClass({
 	getInitialState: function(){
 		return {
 			text: this.props.data.todoItem,
-			active: this.props.data.active,
-			done: this.props.data.completed
+			isChecked: this.props.status === 'done',
+      status: this.props.status === 'done' ? 'done' : 'active'
 		}
 	},
-	_handleDoneChange: function(e){
-		e.preventDefault();
-		// this.setState({done: true}),
-		$('.text-place').toggleClass('strikeout');
-	},
-	_handleDelete: function(){
+	_handleCheckboxChange: function(e){
+		var collection = new TodoList(this.props.items);
+		console.log(collection);
+		var item = collection.get(this.props.objectId);
+		console.log(item);
+		var isDone = !this.state.isChecked;
 
+		this.setState({isChecked: !this.state.isChecked,
+			status: isDone ? 'done' : 'active'
+				});
+		item.set({
+      status: isDone ? 'done' : 'active'
+    });
+		item.save();
+	},
+
+	_handleDelete: function(){
+		var collection = new TodoList(this.props.items);
+    var item = collection.get(this.props.objectId);
+    var props = this.props;
+
+    item.destroy({
+      success: function () {
+  		props.handleRender(collection.toJSON());
+      }
+    });
 	},
 	render: function(){
 		return (
-			<div key={this.props.data.objectId} id={this.props.data.objectId} className="item-block">
+			<div  id={this.props.data.objectId} className="item-block">
 				<li>
-					<span><input className="check" type="checkbox" onChange={this._handleDoneChange}/></span>
-					<span className="text-place">{this.props.data.todoItem}</span>
-					<span className="x-out" onClick={this._handleDelete}>X</span>
+					<span><input className="check" type="checkbox" id={this.props.objectId} onChange={this._handleCheckboxChange} checked={this.state.isChecked}/></span>
+					<label className={this.state.status} htmlFor={this.props.objectId}>{this.state.text}</label>
+					<button className="x-out" onClick={this._handleDelete}>X</button>
 				</li>
 				<ListDivider />
 			</div>
 		)
 	}
 })
+// console.log(collection.toJSON());
+// todoListItem = todoListItem.toJSON();
+// collection.get(this.props.objectId);
+// console.log(todoListItem);

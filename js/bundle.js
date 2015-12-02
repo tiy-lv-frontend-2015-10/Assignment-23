@@ -48,7 +48,7 @@
 	var ReactDOM = __webpack_require__(158);
 	var App = __webpack_require__(159);
 
-	__webpack_require__(235);
+	__webpack_require__(242);
 
 
 
@@ -19652,8 +19652,9 @@
 	var AddNew = __webpack_require__(190);
 	var Todo = __webpack_require__(201);
 	var TodoListItem = __webpack_require__(204);
-	var BottomEdge = __webpack_require__(233);
-	var TodoList = __webpack_require__(234);
+	var BottomEdge = __webpack_require__(240);
+	var TodoList = __webpack_require__(241);
+	var itemList = new TodoList();
 
 	module.exports = React.createClass({displayName: "module.exports",
 		getInitialState: function() {
@@ -19662,7 +19663,6 @@
 			}
 		},
 		componentWillMount: function () {
-			var itemList = new TodoList();
 	    itemList.fetch({
 					success: function(resp){
 					var blah = resp.toJSON();
@@ -19672,20 +19672,21 @@
 						console.log(err);
 					}
 				})
-				// console.log(this.state.list);
 	  },
+		_upList: function(newTodo) {
+			itemList.add(newTodo);
+			this.setState({list: itemList.toJSON()})
+		},
 
 		render: function() {
-			// console.log(this.state.list);
 				return (
 					React.createElement("div", null, 
 						React.createElement("h1", null, "todos"), 
 							React.createElement("div", {id: "notepad"}, 
-								React.createElement(Paper, {zDepth: 4}, 
-								  React.createElement(AddNew, null), 
-									React.createElement(Todo, {list: this.state.list})
+								React.createElement(Paper, {zDepth: 4, id: "top-mast"}, 
+								  React.createElement(AddNew, {upList: this._upList})
 								), 
-								 React.createElement(BottomEdge, null)
+							 React.createElement(Todo, {list: this.state.list})
 							)
 					)
 				)
@@ -22208,7 +22209,13 @@
 				text: ''
 			}
 		},
-		handleSubmit: function(e) {
+		_handleTextChange: function(evt) {
+				this.setState({text: evt.target.value});
+		},
+		_handleUpdate: function(newTodo) {
+			this.props.upList(newTodo);
+		},
+		_handleSubmit: function(e) {
 			e.preventDefault();
 			var newTodo = new TodoItem();
 			newTodo.set({
@@ -22218,26 +22225,24 @@
 			});
 			newTodo.save({}, {
 				success: function(resp){
-					
 				},
 				error: function(err){
 					console.log(err);
 				}
 			});
-			this.setState({text: ''})
+			this._handleUpdate(newTodo);
+			this.setState({text: ''});
 		},
-		 handleTextChange: function(evt) {
-				 this.setState({text: evt.target.value});
-		 },
+
 		render: function(){
 			return (
-			React.createElement("form", {onSubmit: this.handleSubmit}, 
+			React.createElement("form", {onSubmit: this._handleSubmit}, 
 				React.createElement(TextField, {
 	  		hintText: "Add ToDo Item Here...", 
 	  		hintStyle: {fontStyle: 'italic'}, ref: "userInput", 
 				autoFocus: true, 
 				value: this.state.text, 
-				onChange: this.handleTextChange})
+				onChange: this._handleTextChange})
 			)
 			)
 		}
@@ -35814,19 +35819,17 @@
 	var Paper = __webpack_require__(160);
 	var List = __webpack_require__(202);
 	var TodoListItem = __webpack_require__(204);
-	var ListFooter = __webpack_require__(229);
-	var BottomEdge = __webpack_require__(233);
+	var ListFooter = __webpack_require__(236);
+	var BottomEdge = __webpack_require__(240);
 
 	module.exports = React.createClass({displayName: "module.exports",
 
 		render: function() {
-			console.log(this.props.list);
 			return (
-				React.createElement("div", null, 
-					React.createElement(Paper, {id: "todo-backing"}, 
-					React.createElement(List, null, 
-						this.props.list.forEach(function(item){
-							console.log(item);
+				React.createElement("div", {id: "todo-panel"}, 
+					React.createElement(Paper, {id: "todo-backing", zDepth: 4}, 
+					React.createElement("ul", null, 
+						this.props.list.map(function(item){
 							return React.createElement(TodoListItem, {data: item})
 						})
 					)
@@ -35835,26 +35838,6 @@
 				)
 			)
 		},
-		// renderList: function() {
-		//
-		// 	if(!this.props.items){
-		// 		return <h4>Add a todo to get started.</h4>
-		// 	} else {
-		// 		var children = [];
-		//
-		// 		for(var key in this.props.items) {
-		// 			var item = this.props.items[key];
-		// 			item.key = key;
-		//
-		// 			children.push(
-		// 				<ListItem item={item} key={key}>
-		// 				</ListItem>
-		// 				)
-		// 		}
-		// 		return children;
-		// 	}
-		// }
-
 	})
 
 
@@ -36010,20 +35993,19 @@
 /* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/** @jsx React.DOM */var React = __webpack_require__(1);
-	var ReactDOM = __webpack_require__(158);
+	/* WEBPACK VAR INJECTION */(function($) {/** @jsx React.DOM */var React = __webpack_require__(1);
 	var Backbone = __webpack_require__(191);
 	var TodoItem = __webpack_require__(195);
 	var Paper = __webpack_require__(160);
-	var ListItem = __webpack_require__(205);
-	var ListDivider = __webpack_require__(228);
+	var Checkbox = __webpack_require__(205);
+	var ListItem = __webpack_require__(224);
+	var ListDivider = __webpack_require__(235);
 
 
 
 	module.exports = React.createClass({displayName: "module.exports",
 		componentWillMount: function(){
 			var todoListItem = new TodoItem(this.props.data);
-			console.log('model:' + todoListItem)
 		},
 		getInitialState: function(){
 			return {
@@ -36032,16 +36014,29 @@
 				done: this.props.data.completed
 			}
 		},
+		_handleDoneChange: function(e){
+			e.preventDefault();
+			// this.setState({done: true}),
+			$('.text-place').toggleClass('strikeout');
+		},
+		_handleDelete: function(){
+
+		},
 		render: function(){
-			console.log('test');
 			return (
-				React.createElement("div", {id: "item-block"}, 
-					this.props.data.todoItem
+				React.createElement("div", {key: this.props.data.objectId, id: this.props.data.objectId, className: "item-block"}, 
+					React.createElement("li", null, 
+						React.createElement("span", null, React.createElement("input", {className: "check", type: "checkbox", onChange: this._handleDoneChange})), 
+						React.createElement("span", {className: "text-place"}, this.props.data.todoItem), 
+						React.createElement("span", {className: "x-out", onClick: this._handleDelete}, "X")
+					), 
+					React.createElement(ListDivider, null)
 				)
 			)
 		}
 	})
 
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(193)))
 
 /***/ },
 /* 205 */
@@ -36054,57 +36049,21 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(1);
-	var ReactDOM = __webpack_require__(158);
-	var PureRenderMixin = __webpack_require__(161);
-	var ColorManipulator = __webpack_require__(186);
+	var EnhancedSwitch = __webpack_require__(206);
 	var StylePropable = __webpack_require__(164);
-	var Colors = __webpack_require__(185);
 	var Transitions = __webpack_require__(183);
-	var Typography = __webpack_require__(203);
-	var EnhancedButton = __webpack_require__(206);
-	var IconButton = __webpack_require__(221);
-	var OpenIcon = __webpack_require__(224);
-	var CloseIcon = __webpack_require__(226);
-	var NestedList = __webpack_require__(227);
+	var CheckboxOutline = __webpack_require__(221);
+	var CheckboxChecked = __webpack_require__(223);
 	var DefaultRawTheme = __webpack_require__(184);
 	var ThemeManager = __webpack_require__(188);
 
-	var ListItem = React.createClass({
-	  displayName: 'ListItem',
+	var Checkbox = React.createClass({
+	  displayName: 'Checkbox',
 
-	  mixins: [PureRenderMixin, StylePropable],
+	  mixins: [StylePropable],
 
 	  contextTypes: {
 	    muiTheme: React.PropTypes.object
-	  },
-
-	  propTypes: {
-	    autoGenerateNestedIndicator: React.PropTypes.bool,
-	    disabled: React.PropTypes.bool,
-	    disableKeyboardFocus: React.PropTypes.bool,
-	    initiallyOpen: React.PropTypes.bool,
-	    innerDivStyle: React.PropTypes.object,
-	    insetChildren: React.PropTypes.bool,
-	    innerStyle: React.PropTypes.object,
-	    leftAvatar: React.PropTypes.element,
-	    leftCheckbox: React.PropTypes.element,
-	    leftIcon: React.PropTypes.element,
-	    nestedLevel: React.PropTypes.number,
-	    nestedItems: React.PropTypes.arrayOf(React.PropTypes.element),
-	    onKeyboardFocus: React.PropTypes.func,
-	    onMouseEnter: React.PropTypes.func,
-	    onMouseLeave: React.PropTypes.func,
-	    onNestedListToggle: React.PropTypes.func,
-	    onTouchStart: React.PropTypes.func,
-	    onTouchTap: React.PropTypes.func,
-	    rightAvatar: React.PropTypes.element,
-	    rightIcon: React.PropTypes.element,
-	    rightIconButton: React.PropTypes.element,
-	    rightToggle: React.PropTypes.element,
-	    primaryText: React.PropTypes.node,
-	    style: React.PropTypes.object,
-	    secondaryText: React.PropTypes.node,
-	    secondaryTextLines: React.PropTypes.oneOf([1, 2])
 	  },
 
 	  //for passing default theme context to children
@@ -36118,29 +36077,21 @@
 	    };
 	  },
 
-	  getDefaultProps: function getDefaultProps() {
-	    return {
-	      autoGenerateNestedIndicator: true,
-	      initiallyOpen: false,
-	      nestedItems: [],
-	      nestedLevel: 0,
-	      onKeyboardFocus: function onKeyboardFocus() {},
-	      onMouseEnter: function onMouseEnter() {},
-	      onMouseLeave: function onMouseLeave() {},
-	      onNestedListToggle: function onNestedListToggle() {},
-	      onTouchStart: function onTouchStart() {},
-	      secondaryTextLines: 1
-	    };
+	  propTypes: {
+	    checked: React.PropTypes.bool,
+	    checkedIcon: React.PropTypes.element,
+	    defaultChecked: React.PropTypes.bool,
+	    iconStyle: React.PropTypes.object,
+	    labelStyle: React.PropTypes.object,
+	    onCheck: React.PropTypes.func,
+	    unCheckedIcon: React.PropTypes.element,
+	    disabled: React.PropTypes.bool,
+	    labelPosition: React.PropTypes.oneOf(['left', 'right'])
 	  },
 
 	  getInitialState: function getInitialState() {
 	    return {
-	      hovered: false,
-	      isKeyboardFocused: false,
-	      open: this.props.initiallyOpen,
-	      rightIconButtonHovered: false,
-	      rightIconButtonKeyboardFocused: false,
-	      touch: false,
+	      switched: this.props.checked || this.props.defaultChecked || this.props.valueLink && this.props.valueLink.value || false,
 	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
 	    };
 	  },
@@ -36152,433 +36103,156 @@
 	    this.setState({ muiTheme: newMuiTheme });
 	  },
 
-	  render: function render() {
-	    var _props = this.props;
-	    var autoGenerateNestedIndicator = _props.autoGenerateNestedIndicator;
-	    var children = _props.children;
-	    var disabled = _props.disabled;
-	    var disableKeyboardFocus = _props.disableKeyboardFocus;
-	    var innerDivStyle = _props.innerDivStyle;
-	    var insetChildren = _props.insetChildren;
-	    var leftAvatar = _props.leftAvatar;
-	    var leftCheckbox = _props.leftCheckbox;
-	    var leftIcon = _props.leftIcon;
-	    var nestedItems = _props.nestedItems;
-	    var nestedLevel = _props.nestedLevel;
-	    var onKeyboardFocus = _props.onKeyboardFocus;
-	    var onMouseLeave = _props.onMouseLeave;
-	    var onMouseEnter = _props.onMouseEnter;
-	    var onTouchStart = _props.onTouchStart;
-	    var onTouchTap = _props.onTouchTap;
-	    var rightAvatar = _props.rightAvatar;
-	    var rightIcon = _props.rightIcon;
-	    var rightIconButton = _props.rightIconButton;
-	    var rightToggle = _props.rightToggle;
-	    var primaryText = _props.primaryText;
-	    var secondaryText = _props.secondaryText;
-	    var secondaryTextLines = _props.secondaryTextLines;
-	    var style = _props.style;
+	  getTheme: function getTheme() {
+	    return this.state.muiTheme.checkbox;
+	  },
 
-	    var other = _objectWithoutProperties(_props, ['autoGenerateNestedIndicator', 'children', 'disabled', 'disableKeyboardFocus', 'innerDivStyle', 'insetChildren', 'leftAvatar', 'leftCheckbox', 'leftIcon', 'nestedItems', 'nestedLevel', 'onKeyboardFocus', 'onMouseLeave', 'onMouseEnter', 'onTouchStart', 'onTouchTap', 'rightAvatar', 'rightIcon', 'rightIconButton', 'rightToggle', 'primaryText', 'secondaryText', 'secondaryTextLines', 'style']);
-
-	    var textColor = this.state.muiTheme.rawTheme.palette.textColor;
-	    var hoverColor = ColorManipulator.fade(textColor, 0.1);
-	    var singleAvatar = !secondaryText && (leftAvatar || rightAvatar);
-	    var singleNoAvatar = !secondaryText && !(leftAvatar || rightAvatar);
-	    var twoLine = secondaryText && secondaryTextLines === 1;
-	    var threeLine = secondaryText && secondaryTextLines > 1;
-	    var hasCheckbox = leftCheckbox || rightToggle;
-
+	  getStyles: function getStyles() {
+	    var checkboxSize = 24;
 	    var styles = {
-	      root: {
-	        backgroundColor: (this.state.isKeyboardFocused || this.state.hovered) && !this.state.rightIconButtonHovered && !this.state.rightIconButtonKeyboardFocused ? hoverColor : null,
-	        color: textColor,
-	        display: 'block',
-	        fontSize: 16,
-	        lineHeight: '16px',
-	        position: 'relative',
-	        transition: Transitions.easeOut()
+	      icon: {
+	        height: checkboxSize,
+	        width: checkboxSize
 	      },
-
-	      //This inner div is needed so that ripples will span the entire container
-	      innerDiv: {
-	        marginLeft: nestedLevel * this.state.muiTheme.listItem.nestedLevelDepth,
-	        paddingLeft: leftIcon || leftAvatar || leftCheckbox || insetChildren ? 72 : 16,
-	        paddingRight: rightIcon || rightAvatar || rightIconButton ? 56 : rightToggle ? 72 : 16,
-	        paddingBottom: singleAvatar ? 20 : 16,
-	        paddingTop: singleNoAvatar || threeLine ? 16 : 20,
-	        position: 'relative'
-	      },
-
-	      icons: {
-	        height: 24,
-	        width: 24,
-	        display: 'block',
+	      check: {
 	        position: 'absolute',
-	        top: twoLine ? 12 : singleAvatar ? 4 : 0,
-	        padding: 12
+	        opacity: 0,
+	        transform: 'scale(0)',
+	        transitionOrigin: '50% 50%',
+	        transition: Transitions.easeOut('450ms', 'opacity', '0ms') + ', ' + Transitions.easeOut('0ms', 'transform', '450ms'),
+	        fill: this.getTheme().checkedColor
 	      },
-
-	      leftIcon: {
-	        color: Colors.grey600,
-	        fill: Colors.grey600,
-	        left: 4
-	      },
-
-	      rightIcon: {
-	        color: Colors.grey400,
-	        fill: Colors.grey400,
-	        right: 4
-	      },
-
-	      avatars: {
+	      box: {
 	        position: 'absolute',
-	        top: singleAvatar ? 8 : 16
+	        opacity: 1,
+	        fill: this.getTheme().boxColor,
+	        transition: Transitions.easeOut('2s', null, '200ms')
 	      },
-
+	      checkWhenSwitched: {
+	        opacity: 1,
+	        transform: 'scale(1)',
+	        transition: Transitions.easeOut('0ms', 'opacity', '0ms') + ', ' + Transitions.easeOut('800ms', 'transform', '0ms')
+	      },
+	      boxWhenSwitched: {
+	        transition: Transitions.easeOut('100ms', null, '0ms'),
+	        fill: this.getTheme().checkedColor
+	      },
+	      checkWhenDisabled: {
+	        fill: this.getTheme().disabledColor
+	      },
+	      boxWhenDisabled: {
+	        fill: this.getTheme().disabledColor
+	      },
 	      label: {
-	        cursor: 'pointer'
-	      },
-
-	      leftAvatar: {
-	        left: 16
-	      },
-
-	      rightAvatar: {
-	        right: 16
-	      },
-
-	      leftCheckbox: {
-	        position: 'absolute',
-	        display: 'block',
-	        width: 24,
-	        top: twoLine ? 24 : singleAvatar ? 16 : 12,
-	        left: 16
-	      },
-
-	      primaryText: {},
-
-	      rightIconButton: {
-	        position: 'absolute',
-	        display: 'block',
-	        top: twoLine ? 12 : singleAvatar ? 4 : 0,
-	        right: 4
-	      },
-
-	      rightToggle: {
-	        position: 'absolute',
-	        display: 'block',
-	        width: 54,
-	        top: twoLine ? 25 : singleAvatar ? 17 : 13,
-	        right: 8
-	      },
-
-	      secondaryText: {
-	        fontSize: 14,
-	        lineHeight: threeLine ? '18px' : '16px',
-	        height: threeLine ? 36 : 16,
-	        margin: 0,
-	        marginTop: 4,
-	        color: Typography.textLightBlack,
-
-	        //needed for 2 and 3 line ellipsis
-	        overflow: 'hidden',
-	        textOverflow: 'ellipsis',
-	        whiteSpace: threeLine ? null : 'nowrap',
-	        display: threeLine ? '-webkit-box' : null,
-	        WebkitLineClamp: threeLine ? 2 : null,
-	        WebkitBoxOrient: threeLine ? 'vertical' : null
+	        color: this.props.disabled ? this.getTheme().labelDisabledColor : this.getTheme().labelColor
 	      }
 	    };
 
-	    var contentChildren = [children];
+	    return styles;
+	  },
 
-	    if (leftIcon) {
-	      this._pushElement(contentChildren, leftIcon, this.mergeStyles(styles.icons, styles.leftIcon));
-	    }
+	  render: function render() {
+	    var _props = this.props;
+	    var iconStyle = _props.iconStyle;
+	    var onCheck = _props.onCheck;
+	    var checkedIcon = _props.checkedIcon;
+	    var unCheckedIcon = _props.unCheckedIcon;
 
-	    if (rightIcon) {
-	      this._pushElement(contentChildren, rightIcon, this.mergeStyles(styles.icons, styles.rightIcon));
-	    }
+	    var other = _objectWithoutProperties(_props, ['iconStyle', 'onCheck', 'checkedIcon', 'unCheckedIcon']);
 
-	    if (leftAvatar) {
-	      this._pushElement(contentChildren, leftAvatar, this.mergeStyles(styles.avatars, styles.leftAvatar));
-	    }
+	    var styles = this.getStyles();
+	    var boxStyles = this.mergeStyles(styles.box, this.state.switched && styles.boxWhenSwitched, iconStyle, this.props.disabled && styles.boxWhenDisabled);
+	    var checkStyles = this.mergeStyles(styles.check, this.state.switched && styles.checkWhenSwitched, iconStyle, this.props.disabled && styles.checkWhenDisabled);
 
-	    if (rightAvatar) {
-	      this._pushElement(contentChildren, rightAvatar, this.mergeStyles(styles.avatars, styles.rightAvatar));
-	    }
+	    var checkedElement = checkedIcon ? React.cloneElement(checkedIcon, {
+	      style: this.mergeStyles(checkStyles, checkedIcon.props.style)
+	    }) : React.createElement(CheckboxChecked, {
+	      style: checkStyles
+	    });
 
-	    if (leftCheckbox) {
-	      this._pushElement(contentChildren, leftCheckbox, this.mergeStyles(styles.leftCheckbox));
-	    }
+	    var unCheckedElement = unCheckedIcon ? React.cloneElement(unCheckedIcon, {
+	      style: this.mergeStyles(boxStyles, unCheckedIcon.props.style)
+	    }) : React.createElement(CheckboxOutline, {
+	      style: boxStyles
+	    });
 
-	    //RightIconButtonElement
-	    var hasNestListItems = nestedItems.length;
-	    var hasRightElement = rightAvatar || rightIcon || rightIconButton || rightToggle;
-	    var needsNestedIndicator = hasNestListItems && autoGenerateNestedIndicator && !hasRightElement;
-
-	    if (rightIconButton || needsNestedIndicator) {
-	      var rightIconButtonElement = rightIconButton;
-	      var rightIconButtonHandlers = {
-	        onKeyboardFocus: this._handleRightIconButtonKeyboardFocus,
-	        onMouseEnter: this._handleRightIconButtonMouseEnter,
-	        onMouseLeave: this._handleRightIconButtonMouseLeave,
-	        onTouchTap: this._handleRightIconButtonTouchTap,
-	        onMouseDown: this._handleRightIconButtonMouseUp,
-	        onMouseUp: this._handleRightIconButtonMouseUp
-	      };
-
-	      // Create a nested list indicator icon if we don't have an icon on the right
-	      if (needsNestedIndicator) {
-	        rightIconButtonElement = this.state.open ? React.createElement(
-	          IconButton,
-	          null,
-	          React.createElement(OpenIcon, null)
-	        ) : React.createElement(
-	          IconButton,
-	          null,
-	          React.createElement(CloseIcon, null)
-	        );
-	        rightIconButtonHandlers.onTouchTap = this._handleNestedListToggle;
-	      }
-
-	      this._pushElement(contentChildren, rightIconButtonElement, this.mergeStyles(styles.rightIconButton), rightIconButtonHandlers);
-	    }
-
-	    if (rightToggle) {
-	      this._pushElement(contentChildren, rightToggle, this.mergeStyles(styles.rightToggle));
-	    }
-
-	    if (primaryText) {
-	      var secondaryTextElement = this._createTextElement(styles.primaryText, primaryText, 'primaryText');
-	      contentChildren.push(secondaryTextElement);
-	    }
-
-	    if (secondaryText) {
-	      var secondaryTextElement = this._createTextElement(styles.secondaryText, secondaryText, 'secondaryText');
-	      contentChildren.push(secondaryTextElement);
-	    }
-
-	    var nestedList = nestedItems.length ? React.createElement(
-	      NestedList,
-	      { nestedLevel: nestedLevel + 1, open: this.state.open },
-	      nestedItems
-	    ) : undefined;
-
-	    return hasCheckbox ? this._createLabelElement(styles, contentChildren) : disabled ? this._createDisabledElement(styles, contentChildren) : React.createElement(
+	    var checkboxElement = React.createElement(
 	      'div',
 	      null,
-	      React.createElement(
-	        EnhancedButton,
-	        _extends({}, other, {
-	          disabled: disabled,
-	          disableKeyboardFocus: disableKeyboardFocus || this.state.rightIconButtonKeyboardFocused,
-	          linkButton: true,
-	          onKeyboardFocus: this._handleKeyboardFocus,
-	          onMouseLeave: this._handleMouseLeave,
-	          onMouseEnter: this._handleMouseEnter,
-	          onTouchStart: this._handleTouchStart,
-	          onTouchTap: onTouchTap,
-	          ref: 'enhancedButton',
-	          style: this.mergeStyles(styles.root, style) }),
-	        React.createElement(
-	          'div',
-	          { style: this.prepareStyles(styles.innerDiv, innerDivStyle) },
-	          contentChildren
-	        )
-	      ),
-	      nestedList
+	      unCheckedElement,
+	      checkedElement
 	    );
+
+	    var rippleColor = this.state.switched ? checkStyles.fill : boxStyles.fill;
+	    var mergedIconStyle = this.mergeStyles(styles.icon, iconStyle);
+
+	    var labelStyle = this.mergeStyles(styles.label, this.props.labelStyle);
+
+	    var enhancedSwitchProps = {
+	      ref: "enhancedSwitch",
+	      inputType: "checkbox",
+	      switched: this.state.switched,
+	      switchElement: checkboxElement,
+	      rippleColor: rippleColor,
+	      iconStyle: mergedIconStyle,
+	      onSwitch: this._handleCheck,
+	      labelStyle: labelStyle,
+	      onParentShouldUpdate: this._handleStateChange,
+	      defaultSwitched: this.props.defaultChecked,
+	      labelPosition: this.props.labelPosition ? this.props.labelPosition : "right"
+	    };
+
+	    return React.createElement(EnhancedSwitch, _extends({}, other, enhancedSwitchProps));
 	  },
 
-	  applyFocusState: function applyFocusState(focusState) {
-	    var button = this.refs.enhancedButton;
-	    var buttonEl = ReactDOM.findDOMNode(button);
-
-	    if (button) {
-	      switch (focusState) {
-	        case 'none':
-	          buttonEl.blur();
-	          break;
-	        case 'focused':
-	          buttonEl.focus();
-	          break;
-	        case 'keyboard-focused':
-	          button.setKeyboardFocus();
-	          buttonEl.focus();
-	          break;
-	      }
-	    }
+	  isChecked: function isChecked() {
+	    return this.refs.enhancedSwitch.isSwitched();
 	  },
 
-	  _createDisabledElement: function _createDisabledElement(styles, contentChildren) {
-	    var _props2 = this.props;
-	    var innerDivStyle = _props2.innerDivStyle;
-	    var style = _props2.style;
-
-	    var mergedDivStyles = this.prepareStyles(styles.root, styles.innerDiv, innerDivStyle, style);
-
-	    return React.createElement('div', { style: mergedDivStyles }, contentChildren);
+	  setChecked: function setChecked(newCheckedValue) {
+	    this.refs.enhancedSwitch.setSwitched(newCheckedValue);
 	  },
 
-	  _createLabelElement: function _createLabelElement(styles, contentChildren) {
-	    var _props3 = this.props;
-	    var innerDivStyle = _props3.innerDivStyle;
-	    var style = _props3.style;
-
-	    var mergedLabelStyles = this.prepareStyles(styles.root, styles.innerDiv, innerDivStyle, styles.label, style);
-
-	    return React.createElement('label', { style: mergedLabelStyles }, contentChildren);
+	  _handleCheck: function _handleCheck(e, isInputChecked) {
+	    if (this.props.onCheck) this.props.onCheck(e, isInputChecked);
 	  },
 
-	  _createTextElement: function _createTextElement(styles, data, key) {
-	    var isAnElement = React.isValidElement(data);
-	    var mergedStyles = isAnElement ? this.prepareStyles(styles, data.props.style) : null;
-
-	    return isAnElement ? React.cloneElement(data, {
-	      key: key,
-	      style: mergedStyles
-	    }) : React.createElement(
-	      'div',
-	      { key: key, style: this.prepareStyles(styles) },
-	      data
-	    );
-	  },
-
-	  _handleKeyboardFocus: function _handleKeyboardFocus(e, isKeyboardFocused) {
-	    this.setState({ isKeyboardFocused: isKeyboardFocused });
-	    this.props.onKeyboardFocus(e, isKeyboardFocused);
-	  },
-
-	  _handleMouseEnter: function _handleMouseEnter(e) {
-	    if (!this.state.touch) this.setState({ hovered: true });
-	    this.props.onMouseEnter(e);
-	  },
-
-	  _handleMouseLeave: function _handleMouseLeave(e) {
-	    this.setState({ hovered: false });
-	    this.props.onMouseLeave(e);
-	  },
-
-	  _handleNestedListToggle: function _handleNestedListToggle(e) {
-	    e.stopPropagation();
-	    this.setState({ open: !this.state.open });
-	    this.props.onNestedListToggle(this);
-	  },
-
-	  _handleRightIconButtonKeyboardFocus: function _handleRightIconButtonKeyboardFocus(e, isKeyboardFocused) {
-	    var iconButton = this.props.rightIconButton;
-	    var newState = {};
-
-	    newState.rightIconButtonKeyboardFocused = isKeyboardFocused;
-	    if (isKeyboardFocused) newState.isKeyboardFocused = false;
-	    this.setState(newState);
-
-	    if (iconButton && iconButton.props.onKeyboardFocus) iconButton.props.onKeyboardFocus(e, isKeyboardFocused);
-	  },
-
-	  _handleRightIconButtonMouseDown: function _handleRightIconButtonMouseDown(e) {
-	    var iconButton = this.props.rightIconButton;
-	    e.stopPropagation();
-	    if (iconButton && iconButton.props.onMouseDown) iconButton.props.onMouseDown(e);
-	  },
-
-	  _handleRightIconButtonMouseLeave: function _handleRightIconButtonMouseLeave(e) {
-	    var iconButton = this.props.rightIconButton;
-	    this.setState({ rightIconButtonHovered: false });
-	    if (iconButton && iconButton.props.onMouseLeave) iconButton.props.onMouseLeave(e);
-	  },
-
-	  _handleRightIconButtonMouseEnter: function _handleRightIconButtonMouseEnter(e) {
-	    var iconButton = this.props.rightIconButton;
-	    this.setState({ rightIconButtonHovered: true });
-	    if (iconButton && iconButton.props.onMouseEnter) iconButton.props.onMouseEnter(e);
-	  },
-
-	  _handleRightIconButtonMouseUp: function _handleRightIconButtonMouseUp(e) {
-	    var iconButton = this.props.rightIconButton;
-	    e.stopPropagation();
-	    if (iconButton && iconButton.props.onMouseUp) iconButton.props.onMouseUp(e);
-	  },
-
-	  _handleRightIconButtonTouchTap: function _handleRightIconButtonTouchTap(e) {
-	    var iconButton = this.props.rightIconButton;
-
-	    //Stop the event from bubbling up to the list-item
-	    e.stopPropagation();
-	    if (iconButton && iconButton.props.onTouchTap) iconButton.props.onTouchTap(e);
-	  },
-
-	  _handleTouchStart: function _handleTouchStart(e) {
-	    this.setState({ touch: true });
-	    this.props.onTouchStart(e);
-	  },
-
-	  _pushElement: function _pushElement(children, element, baseStyles, additionalProps) {
-	    if (element) {
-	      var styles = this.mergeStyles(baseStyles, element.props.style);
-	      children.push(React.cloneElement(element, _extends({
-	        key: children.length,
-	        style: styles
-	      }, additionalProps)));
-	    }
+	  _handleStateChange: function _handleStateChange(newSwitched) {
+	    this.setState({ switched: newSwitched });
 	  }
 
 	});
 
-	module.exports = ListItem;
+	module.exports = Checkbox;
 
 /***/ },
 /* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(1);
-	var PureRenderMixin = __webpack_require__(161);
+	var ReactDOM = __webpack_require__(158);
+	var KeyCode = __webpack_require__(207);
 	var StylePropable = __webpack_require__(164);
-	var Colors = __webpack_require__(185);
-	var Children = __webpack_require__(207);
-	var Events = __webpack_require__(210);
-	var KeyCode = __webpack_require__(211);
+	var Transitions = __webpack_require__(183);
+	var UniqueId = __webpack_require__(197);
+	var WindowListenable = __webpack_require__(208);
+	var ClearFix = __webpack_require__(210);
 	var FocusRipple = __webpack_require__(212);
 	var TouchRipple = __webpack_require__(218);
+	var Paper = __webpack_require__(160);
 	var DefaultRawTheme = __webpack_require__(184);
 	var ThemeManager = __webpack_require__(188);
 
-	var styleInjected = false;
-	var listening = false;
-	var tabPressed = false;
+	var EnhancedSwitch = React.createClass({
+	  displayName: 'EnhancedSwitch',
 
-	function injectStyle() {
-	  if (!styleInjected) {
-	    // Remove inner padding and border in Firefox 4+.
-	    var style = document.createElement("style");
-	    style.innerHTML = '\n      button::-moz-focus-inner,\n      input::-moz-focus-inner {\n        border: 0;\n        padding: 0;\n      }\n    ';
-
-	    document.body.appendChild(style);
-	    styleInjected = true;
-	  }
-	}
-
-	function listenForTabPresses() {
-	  if (!listening) {
-	    Events.on(window, 'keydown', function (e) {
-	      tabPressed = e.keyCode === KeyCode.TAB;
-	    });
-	    listening = true;
-	  }
-	}
-
-	var EnhancedButton = React.createClass({
-	  displayName: 'EnhancedButton',
-
-	  mixins: [PureRenderMixin, StylePropable],
+	  mixins: [WindowListenable, StylePropable],
 
 	  contextTypes: {
 	    muiTheme: React.PropTypes.object
@@ -36596,369 +36270,445 @@
 	  },
 
 	  propTypes: {
-	    centerRipple: React.PropTypes.bool,
-	    containerElement: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.element]),
+	    id: React.PropTypes.string,
+	    inputType: React.PropTypes.string.isRequired,
+	    switchElement: React.PropTypes.element.isRequired,
+	    onParentShouldUpdate: React.PropTypes.func.isRequired,
+	    switched: React.PropTypes.bool.isRequired,
+	    rippleStyle: React.PropTypes.object,
+	    rippleColor: React.PropTypes.string,
+	    iconStyle: React.PropTypes.object,
+	    thumbStyle: React.PropTypes.object,
+	    trackStyle: React.PropTypes.object,
+	    labelStyle: React.PropTypes.object,
+	    name: React.PropTypes.string,
+	    value: React.PropTypes.string,
+	    label: React.PropTypes.node,
+	    onSwitch: React.PropTypes.func,
+	    required: React.PropTypes.bool,
 	    disabled: React.PropTypes.bool,
+	    defaultSwitched: React.PropTypes.bool,
+	    labelPosition: React.PropTypes.oneOf(['left', 'right']),
 	    disableFocusRipple: React.PropTypes.bool,
-	    disableKeyboardFocus: React.PropTypes.bool,
 	    disableTouchRipple: React.PropTypes.bool,
-	    keyboardFocused: React.PropTypes.bool,
-	    linkButton: React.PropTypes.bool,
-	    focusRippleColor: React.PropTypes.string,
-	    touchRippleColor: React.PropTypes.string,
-	    focusRippleOpacity: React.PropTypes.number,
-	    touchRippleOpacity: React.PropTypes.number,
-	    onBlur: React.PropTypes.func,
-	    onFocus: React.PropTypes.func,
-	    onKeyboardFocus: React.PropTypes.func,
-	    onKeyDown: React.PropTypes.func,
-	    onKeyUp: React.PropTypes.func,
-	    onTouchTap: React.PropTypes.func,
-	    tabIndex: React.PropTypes.number,
 	    style: React.PropTypes.object
 	  },
 
-	  getDefaultProps: function getDefaultProps() {
-	    return {
-	      containerElement: 'button',
-	      onBlur: function onBlur() {},
-	      onFocus: function onFocus() {},
-	      onKeyboardFocus: function onKeyboardFocus() {},
-	      onKeyDown: function onKeyDown() {},
-	      onKeyUp: function onKeyUp() {},
-	      onTouchTap: function onTouchTap() {},
-	      tabIndex: 0,
-	      type: 'button'
-	    };
+	  windowListeners: {
+	    keydown: '_handleWindowKeydown',
+	    keyup: '_handleWindowKeyup'
 	  },
 
 	  getInitialState: function getInitialState() {
 	    return {
-	      isKeyboardFocused: !this.props.disabled && this.props.keyboardFocused && !this.props.disableKeyboardFocus,
+	      isKeyboardFocused: false,
+	      parentWidth: 100,
 	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
 	    };
 	  },
 
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
-	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-	    this.setState({ muiTheme: newMuiTheme });
-
-	    if ((nextProps.disabled || nextProps.disableKeyboardFocus) && this.state.isKeyboardFocused) {
-	      this.setState({ isKeyboardFocused: false });
-	      if (nextProps.onKeyboardFocus) {
-	        nextProps.onKeyboardFocus(null, false);
-	      }
-	    }
+	  getEvenWidth: function getEvenWidth() {
+	    return parseInt(window.getComputedStyle(ReactDOM.findDOMNode(this.refs.root)).getPropertyValue('width'), 10);
 	  },
 
 	  componentDidMount: function componentDidMount() {
-	    injectStyle();
-	    listenForTabPresses();
+	    var inputNode = ReactDOM.findDOMNode(this.refs.checkbox);
+	    if (!this.props.switched || inputNode.checked !== this.props.switched) {
+	      this.props.onParentShouldUpdate(inputNode.checked);
+	    }
+
+	    window.addEventListener("resize", this._handleResize);
+
+	    this._handleResize();
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    window.removeEventListener("resize", this._handleResize);
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var hasCheckedLinkProp = nextProps.hasOwnProperty('checkedLink');
+	    var hasCheckedProp = nextProps.hasOwnProperty('checked');
+	    var hasToggledProp = nextProps.hasOwnProperty('toggled');
+	    var hasNewDefaultProp = nextProps.hasOwnProperty('defaultSwitched') && nextProps.defaultSwitched !== this.props.defaultSwitched;
+	    var newState = {};
+	    newState.muiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+
+	    if (hasCheckedProp) {
+	      newState.switched = nextProps.checked;
+	    } else if (hasToggledProp) {
+	      newState.switched = nextProps.toggled;
+	    } else if (hasCheckedLinkProp) {
+	      newState.switched = nextProps.checkedLink.value;
+	    } else if (hasNewDefaultProp) {
+	      newState.switched = nextProps.defaultSwitched;
+	    }
+
+	    if (newState.switched !== undefined && newState.switched !== this.props.switched) {
+	      this.props.onParentShouldUpdate(newState.switched);
+	    }
+
+	    this.setState(newState);
+	  },
+
+	  getTheme: function getTheme() {
+	    return this.state.muiTheme.rawTheme.palette;
+	  },
+
+	  getStyles: function getStyles() {
+	    var spacing = this.state.muiTheme.rawTheme.spacing;
+	    var switchWidth = 60 - spacing.desktopGutterLess;
+	    var labelWidth = 'calc(100% - 60px)';
+	    var styles = {
+	      root: {
+	        position: 'relative',
+	        cursor: this.props.disabled ? 'default' : 'pointer',
+	        overflow: 'visible',
+	        display: 'table',
+	        height: 'auto',
+	        width: '100%'
+	      },
+	      input: {
+	        position: 'absolute',
+	        cursor: this.props.disabled ? 'default' : 'pointer',
+	        pointerEvents: 'all',
+	        opacity: 0,
+	        width: '100%',
+	        height: '100%',
+	        zIndex: 2,
+	        left: 0,
+	        boxSizing: 'border-box',
+	        padding: 0,
+	        margin: 0
+	      },
+	      controls: {
+	        width: '100%',
+	        height: '100%'
+	      },
+	      label: {
+	        float: 'left',
+	        position: 'relative',
+	        display: 'block',
+	        width: labelWidth,
+	        lineHeight: '24px',
+	        color: this.getTheme().textColor
+	      },
+	      wrap: {
+	        transition: Transitions.easeOut(),
+	        float: 'left',
+	        position: 'relative',
+	        display: 'block',
+	        width: switchWidth,
+	        marginRight: this.props.labelPosition === 'right' ? spacing.desktopGutterLess : 0,
+	        marginLeft: this.props.labelPosition === 'left' ? spacing.desktopGutterLess : 0
+	      },
+	      ripple: {
+	        height: '200%',
+	        width: '200%',
+	        top: -12,
+	        left: -12
+	      }
+	    };
+
+	    return styles;
 	  },
 
 	  render: function render() {
 	    var _props = this.props;
-	    var centerRipple = _props.centerRipple;
-	    var children = _props.children;
-	    var containerElement = _props.containerElement;
-	    var disabled = _props.disabled;
-	    var disableFocusRipple = _props.disableFocusRipple;
-	    var disableKeyboardFocus = _props.disableKeyboardFocus;
-	    var disableTouchRipple = _props.disableTouchRipple;
-	    var focusRippleColor = _props.focusRippleColor;
-	    var focusRippleOpacity = _props.focusRippleOpacity;
-	    var linkButton = _props.linkButton;
-	    var touchRippleColor = _props.touchRippleColor;
-	    var touchRippleOpacity = _props.touchRippleOpacity;
+	    var type = _props.type;
+	    var name = _props.name;
+	    var value = _props.value;
+	    var label = _props.label;
+	    var onSwitch = _props.onSwitch;
+	    var defaultSwitched = _props.defaultSwitched;
 	    var onBlur = _props.onBlur;
 	    var onFocus = _props.onFocus;
-	    var onKeyUp = _props.onKeyUp;
-	    var onKeyDown = _props.onKeyDown;
-	    var onTouchTap = _props.onTouchTap;
-	    var style = _props.style;
-	    var tabIndex = _props.tabIndex;
-	    var type = _props.type;
+	    var onMouseUp = _props.onMouseUp;
+	    var onMouseDown = _props.onMouseDown;
+	    var onMouseLeave = _props.onMouseLeave;
+	    var onTouchStart = _props.onTouchStart;
+	    var onTouchEnd = _props.onTouchEnd;
+	    var disableTouchRipple = _props.disableTouchRipple;
+	    var disableFocusRipple = _props.disableFocusRipple;
+	    var className = _props.className;
 
-	    var other = _objectWithoutProperties(_props, ['centerRipple', 'children', 'containerElement', 'disabled', 'disableFocusRipple', 'disableKeyboardFocus', 'disableTouchRipple', 'focusRippleColor', 'focusRippleOpacity', 'linkButton', 'touchRippleColor', 'touchRippleOpacity', 'onBlur', 'onFocus', 'onKeyUp', 'onKeyDown', 'onTouchTap', 'style', 'tabIndex', 'type']);
+	    var other = _objectWithoutProperties(_props, ['type', 'name', 'value', 'label', 'onSwitch', 'defaultSwitched', 'onBlur', 'onFocus', 'onMouseUp', 'onMouseDown', 'onMouseLeave', 'onTouchStart', 'onTouchEnd', 'disableTouchRipple', 'disableFocusRipple', 'className']);
 
-	    var mergedStyles = this.prepareStyles({
-	      border: 10,
-	      background: 'none',
-	      boxSizing: 'border-box',
-	      display: 'inline-block',
-	      font: 'inherit',
-	      fontFamily: this.state.muiTheme.rawTheme.fontFamily,
-	      tapHighlightColor: Colors.transparent,
-	      appearance: linkButton ? null : 'button',
-	      cursor: disabled ? 'default' : 'pointer',
-	      textDecoration: 'none',
-	      outline: 'none'
-	    }, style);
+	    var styles = this.getStyles();
+	    var wrapStyles = this.prepareStyles(styles.wrap, this.props.iconStyle);
+	    var rippleStyle = this.prepareStyles(styles.ripple, this.props.rippleStyle);
+	    var rippleColor = this.props.hasOwnProperty('rippleColor') ? this.props.rippleColor : this.getTheme().primary1Color;
 
-	    if (disabled && linkButton) {
-	      return React.createElement(
-	        'span',
-	        _extends({}, other, {
-	          style: mergedStyles }),
-	        children
-	      );
+	    if (this.props.thumbStyle) {
+	      wrapStyles.marginLeft /= 2;
+	      wrapStyles.marginRight /= 2;
 	    }
 
-	    var buttonProps = _extends({}, other, {
-	      style: mergedStyles,
-	      disabled: disabled,
-	      onBlur: this._handleBlur,
-	      onFocus: this._handleFocus,
-	      onTouchTap: this._handleTouchTap,
-	      onKeyUp: this._handleKeyUp,
-	      onKeyDown: this._handleKeyDown,
-	      tabIndex: tabIndex,
-	      type: type
-	    });
-	    var buttonChildren = this._createButtonChildren();
+	    var inputId = this.props.id || UniqueId.generate();
 
-	    return React.isValidElement(containerElement) ? React.cloneElement(containerElement, buttonProps, buttonChildren) : React.createElement(linkButton ? 'a' : containerElement, buttonProps, buttonChildren);
+	    var labelStyle = this.prepareStyles(styles.label, this.props.labelStyle);
+	    var labelElement = this.props.label ? React.createElement(
+	      'label',
+	      { style: labelStyle, htmlFor: inputId },
+	      this.props.label
+	    ) : null;
+
+	    var inputProps = {
+	      ref: "checkbox",
+	      type: this.props.inputType,
+	      style: this.prepareStyles(styles.input),
+	      name: this.props.name,
+	      value: this.props.value,
+	      defaultChecked: this.props.defaultSwitched,
+	      onBlur: this._handleBlur,
+	      onFocus: this._handleFocus
+	    };
+
+	    var hideTouchRipple = this.props.disabled || disableTouchRipple;
+
+	    if (!hideTouchRipple) {
+	      inputProps.onMouseUp = this._handleMouseUp;
+	      inputProps.onMouseDown = this._handleMouseDown;
+	      inputProps.onMouseLeave = this._handleMouseLeave;
+	      inputProps.onTouchStart = this._handleTouchStart;
+	      inputProps.onTouchEnd = this._handleTouchEnd;
+	    }
+
+	    if (!this.props.hasOwnProperty('checkedLink')) {
+	      inputProps.onChange = this._handleChange;
+	    }
+
+	    var inputElement = React.createElement('input', _extends({}, other, inputProps));
+
+	    var touchRipple = React.createElement(TouchRipple, {
+	      ref: 'touchRipple',
+	      key: 'touchRipple',
+	      style: rippleStyle,
+	      color: rippleColor,
+	      centerRipple: true });
+
+	    var focusRipple = React.createElement(FocusRipple, {
+	      key: 'focusRipple',
+	      innerStyle: rippleStyle,
+	      color: rippleColor,
+	      show: this.state.isKeyboardFocused });
+
+	    var ripples = [hideTouchRipple ? null : touchRipple, this.props.disabled || disableFocusRipple ? null : focusRipple];
+
+	    // If toggle component (indicated by whether the style includes thumb) manually lay out
+	    // elements in order to nest ripple elements
+	    var switchElement = !this.props.thumbStyle ? React.createElement(
+	      'div',
+	      { style: wrapStyles },
+	      this.props.switchElement,
+	      ripples
+	    ) : React.createElement(
+	      'div',
+	      { style: wrapStyles },
+	      React.createElement('div', { style: this.prepareStyles(this.props.trackStyle) }),
+	      React.createElement(
+	        Paper,
+	        { style: this.props.thumbStyle, zDepth: 1, circle: true },
+	        ' ',
+	        ripples,
+	        ' '
+	      )
+	    );
+
+	    var labelPositionExist = this.props.labelPosition;
+
+	    // Position is left if not defined or invalid.
+	    var elementsInOrder = labelPositionExist && this.props.labelPosition.toUpperCase() === "RIGHT" ? React.createElement(
+	      ClearFix,
+	      { style: styles.controls },
+	      switchElement,
+	      labelElement
+	    ) : React.createElement(
+	      ClearFix,
+	      { style: styles.controls },
+	      labelElement,
+	      switchElement
+	    );
+
+	    return React.createElement(
+	      'div',
+	      { ref: 'root', className: className, style: this.prepareStyles(styles.root, this.props.style) },
+	      inputElement,
+	      elementsInOrder
+	    );
+	  },
+
+	  isSwitched: function isSwitched() {
+	    return ReactDOM.findDOMNode(this.refs.checkbox).checked;
+	  },
+
+	  // no callback here because there is no event
+	  setSwitched: function setSwitched(newSwitchedValue) {
+	    if (!this.props.hasOwnProperty('checked') || this.props.checked === false) {
+	      this.props.onParentShouldUpdate(newSwitchedValue);
+	      ReactDOM.findDOMNode(this.refs.checkbox).checked = newSwitchedValue;
+	    } else if (process.env.NODE_ENV !== 'production') {
+	      var message = 'Cannot call set method while checked is defined as a property.';
+	      console.error(message);
+	    }
+	  },
+
+	  getValue: function getValue() {
+	    return ReactDOM.findDOMNode(this.refs.checkbox).value;
 	  },
 
 	  isKeyboardFocused: function isKeyboardFocused() {
 	    return this.state.isKeyboardFocused;
 	  },
 
-	  removeKeyboardFocus: function removeKeyboardFocus(e) {
-	    if (this.state.isKeyboardFocused) {
-	      this.setState({ isKeyboardFocused: false });
-	      this.props.onKeyboardFocus(e, false);
-	    }
-	  },
-
-	  setKeyboardFocus: function setKeyboardFocus(e) {
-	    if (!this.state.isKeyboardFocused) {
-	      this.setState({ isKeyboardFocused: true });
-	      this.props.onKeyboardFocus(e, true);
-	    }
-	  },
-
-	  _cancelFocusTimeout: function _cancelFocusTimeout() {
-	    if (this._focusTimeout) {
-	      clearTimeout(this._focusTimeout);
-	      this._focusTimeout = null;
-	    }
-	  },
-
-	  _createButtonChildren: function _createButtonChildren() {
-	    var _props2 = this.props;
-	    var centerRipple = _props2.centerRipple;
-	    var children = _props2.children;
-	    var disabled = _props2.disabled;
-	    var disableFocusRipple = _props2.disableFocusRipple;
-	    var disableKeyboardFocus = _props2.disableKeyboardFocus;
-	    var disableTouchRipple = _props2.disableTouchRipple;
-	    var focusRippleColor = _props2.focusRippleColor;
-	    var focusRippleOpacity = _props2.focusRippleOpacity;
-	    var touchRippleColor = _props2.touchRippleColor;
-	    var touchRippleOpacity = _props2.touchRippleOpacity;
-	    var isKeyboardFocused = this.state.isKeyboardFocused;
-
-	    //Focus Ripple
-	    var focusRipple = isKeyboardFocused && !disabled && !disableFocusRipple && !disableKeyboardFocus ? React.createElement(FocusRipple, {
-	      color: focusRippleColor,
-	      opacity: focusRippleOpacity,
-	      show: isKeyboardFocused
-	    }) : undefined;
-
-	    //Touch Ripple
-	    var touchRipple = !disabled && !disableTouchRipple ? React.createElement(
-	      TouchRipple,
-	      {
-	        centerRipple: centerRipple,
-	        color: touchRippleColor,
-	        opacity: touchRippleOpacity },
-	      children
-	    ) : undefined;
-
-	    return Children.create({
-	      focusRipple: focusRipple,
-	      touchRipple: touchRipple,
-	      children: touchRipple ? undefined : children
+	  _handleChange: function _handleChange(e) {
+	    this._tabPressed = false;
+	    this.setState({
+	      isKeyboardFocused: false
 	    });
+
+	    var isInputChecked = ReactDOM.findDOMNode(this.refs.checkbox).checked;
+
+	    if (!this.props.hasOwnProperty('checked')) {
+	      this.props.onParentShouldUpdate(isInputChecked);
+	    }
+	    if (this.props.onSwitch) {
+	      this.props.onSwitch(e, isInputChecked);
+	    }
 	  },
 
-	  _handleKeyDown: function _handleKeyDown(e) {
-	    if (!this.props.disabled && !this.props.disableKeyboardFocus) {
-	      if (e.keyCode === KeyCode.ENTER && this.state.isKeyboardFocused) {
-	        this._handleTouchTap(e);
-	      }
+	  // Checkbox inputs only use SPACE to change their state. Using ENTER will
+	  // update the ui but not the input.
+	  _handleWindowKeydown: function _handleWindowKeydown(e) {
+	    if (e.keyCode === KeyCode.TAB) {
+	      this._tabPressed = true;
 	    }
-	    this.props.onKeyDown(e);
+	    if (e.keyCode === KeyCode.SPACE && this.state.isKeyboardFocused) {
+	      this._handleChange(e);
+	    }
 	  },
 
-	  _handleKeyUp: function _handleKeyUp(e) {
-	    if (!this.props.disabled && e.keyCode === KeyCode.SPACE && this.state.isKeyboardFocused) {
-	      this._handleTouchTap(e);
+	  _handleWindowKeyup: function _handleWindowKeyup(e) {
+	    if (e.keyCode === KeyCode.SPACE && this.state.isKeyboardFocused) {
+	      this._handleChange(e);
 	    }
-	    this.props.onKeyUp(e);
+	  },
+
+	  /**
+	   * Because both the ripples and the checkbox input cannot share pointer
+	   * events, the checkbox input takes control of pointer events and calls
+	   * ripple animations manually.
+	   */
+	  _handleMouseDown: function _handleMouseDown(e) {
+	    //only listen to left clicks
+	    if (e.button === 0) {
+	      this.refs.touchRipple.start(e);
+	    }
+	  },
+
+	  _handleMouseUp: function _handleMouseUp() {
+	    this.refs.touchRipple.end();
+	  },
+
+	  _handleMouseLeave: function _handleMouseLeave() {
+	    this.refs.touchRipple.end();
+	  },
+
+	  _handleTouchStart: function _handleTouchStart(e) {
+	    this.refs.touchRipple.start(e);
+	  },
+
+	  _handleTouchEnd: function _handleTouchEnd() {
+	    this.refs.touchRipple.end();
 	  },
 
 	  _handleBlur: function _handleBlur(e) {
-	    this._cancelFocusTimeout();
-	    this.removeKeyboardFocus(e);
-	    this.props.onBlur(e);
+	    this.setState({
+	      isKeyboardFocused: false
+	    });
+
+	    if (this.props.onBlur) {
+	      this.props.onBlur(e);
+	    }
 	  },
 
 	  _handleFocus: function _handleFocus(e) {
 	    var _this = this;
 
-	    if (!this.props.disabled && !this.props.disableKeyboardFocus) {
-	      //setTimeout is needed because the focus event fires first
-	      //Wait so that we can capture if this was a keyboard focus
-	      //or touch focus
-	      this._focusTimeout = setTimeout(function () {
-	        if (tabPressed) {
-	          _this.setKeyboardFocus(e);
-	        }
-	      }, 150);
+	    //setTimeout is needed becuase the focus event fires first
+	    //Wait so that we can capture if this was a keyboard focus
+	    //or touch focus
+	    setTimeout(function () {
+	      if (_this._tabPressed) {
+	        _this.setState({
+	          isKeyboardFocused: true
+	        });
+	      }
+	    }, 150);
 
+	    if (this.props.onFocus) {
 	      this.props.onFocus(e);
 	    }
 	  },
 
-	  _handleTouchTap: function _handleTouchTap(e) {
-	    this._cancelFocusTimeout();
-	    if (!this.props.disabled) {
-	      tabPressed = false;
-	      this.removeKeyboardFocus(e);
-	      this.props.onTouchTap(e);
-	    }
+	  _handleResize: function _handleResize() {
+	    this.setState({ parentWidth: this.getEvenWidth() });
 	  }
 
 	});
 
-	module.exports = EnhancedButton;
+	module.exports = EnhancedSwitch;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
 /* 207 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var createFragment = __webpack_require__(208);
+	"use strict";
 
 	module.exports = {
-
-	  create: function create(fragments) {
-	    var newFragments = {};
-	    var validChildrenCount = 0;
-	    var firstKey = undefined;
-
-	    //Only create non-empty key fragments
-	    for (var key in fragments) {
-	      var currentChild = fragments[key];
-
-	      if (currentChild) {
-	        if (validChildrenCount === 0) firstKey = key;
-	        newFragments[key] = currentChild;
-	        validChildrenCount++;
-	      }
-	    }
-
-	    if (validChildrenCount === 0) return undefined;
-	    if (validChildrenCount === 1) return newFragments[firstKey];
-	    return createFragment(newFragments);
-	  },
-
-	  extend: function extend(children, extendedProps, extendedChildren) {
-
-	    return React.isValidElement(children) ? React.Children.map(children, function (child) {
-
-	      var newProps = typeof extendedProps === 'function' ? extendedProps(child) : extendedProps;
-
-	      var newChildren = typeof extendedChildren === 'function' ? extendedChildren(child) : extendedChildren ? extendedChildren : child.props.children;
-
-	      return React.cloneElement(child, newProps, newChildren);
-	    }) : children;
-	  }
-
+	  DOWN: 40,
+	  ESC: 27,
+	  ENTER: 13,
+	  LEFT: 37,
+	  RIGHT: 39,
+	  SPACE: 32,
+	  TAB: 9,
+	  UP: 38
 	};
 
 /***/ },
 /* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(209).create;
+	'use strict';
+
+	var Events = __webpack_require__(209);
+
+	module.exports = {
+
+	  componentDidMount: function componentDidMount() {
+	    var listeners = this.windowListeners;
+
+	    for (var eventName in listeners) {
+	      var callbackName = listeners[eventName];
+	      Events.on(window, eventName, this[callbackName]);
+	    }
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    var listeners = this.windowListeners;
+
+	    for (var eventName in listeners) {
+	      var callbackName = listeners[eventName];
+	      Events.off(window, eventName, this[callbackName]);
+	    }
+	  }
+
+	};
 
 /***/ },
 /* 209 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule ReactFragment
-	 */
-
-	'use strict';
-
-	var ReactChildren = __webpack_require__(110);
-	var ReactElement = __webpack_require__(42);
-
-	var emptyFunction = __webpack_require__(15);
-	var invariant = __webpack_require__(13);
-	var warning = __webpack_require__(25);
-
-	/**
-	 * We used to allow keyed objects to serve as a collection of ReactElements,
-	 * or nested sets. This allowed us a way to explicitly key a set a fragment of
-	 * components. This is now being replaced with an opaque data structure.
-	 * The upgrade path is to call React.addons.createFragment({ key: value }) to
-	 * create a keyed fragment. The resulting data structure is an array.
-	 */
-
-	var numericPropertyRegex = /^\d+$/;
-
-	var warnedAboutNumeric = false;
-
-	var ReactFragment = {
-	  // Wrap a keyed object in an opaque proxy that warns you if you access any
-	  // of its properties.
-	  create: function (object) {
-	    if (typeof object !== 'object' || !object || Array.isArray(object)) {
-	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment only accepts a single object. Got: %s', object) : undefined;
-	      return object;
-	    }
-	    if (ReactElement.isValidElement(object)) {
-	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment does not accept a ReactElement ' + 'without a wrapper object.') : undefined;
-	      return object;
-	    }
-
-	    !(object.nodeType !== 1) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React.addons.createFragment(...): Encountered an invalid child; DOM ' + 'elements are not valid children of React components.') : invariant(false) : undefined;
-
-	    var result = [];
-
-	    for (var key in object) {
-	      if (process.env.NODE_ENV !== 'production') {
-	        if (!warnedAboutNumeric && numericPropertyRegex.test(key)) {
-	          process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment(...): Child objects should have ' + 'non-numeric keys so ordering is preserved.') : undefined;
-	          warnedAboutNumeric = true;
-	        }
-	      }
-	      ReactChildren.mapIntoWithKeyPrefixInternal(object[key], result, key, emptyFunction.thatReturnsArgument);
-	    }
-
-	    return result;
-	  }
-	};
-
-	module.exports = ReactFragment;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
-
-/***/ },
-/* 210 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -37003,21 +36753,221 @@
 	};
 
 /***/ },
+/* 210 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var React = __webpack_require__(1);
+	var BeforeAfterWrapper = __webpack_require__(211);
+	var StylePropable = __webpack_require__(164);
+	var DefaultRawTheme = __webpack_require__(184);
+	var ThemeManager = __webpack_require__(188);
+
+	var ClearFix = React.createClass({
+	  displayName: 'ClearFix',
+
+	  mixins: [StylePropable],
+
+	  contextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  propTypes: {
+	    style: React.PropTypes.object
+	  },
+
+	  //for passing default theme context to children
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  getChildContext: function getChildContext() {
+	    return {
+	      muiTheme: this.state.muiTheme
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
+	    };
+	  },
+
+	  //to update theme inside state whenever a new theme is passed down
+	  //from the parent / owner using context
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+	    this.setState({ muiTheme: newMuiTheme });
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var style = _props.style;
+
+	    var other = _objectWithoutProperties(_props, ['style']);
+
+	    var before = function before() {
+	      return {
+	        content: "' '",
+	        display: 'table'
+	      };
+	    };
+
+	    var after = before();
+	    after.clear = 'both';
+
+	    return React.createElement(
+	      BeforeAfterWrapper,
+	      _extends({}, other, {
+	        beforeStyle: before(),
+	        afterStyle: after,
+	        style: style }),
+	      this.props.children
+	    );
+	  }
+	});
+
+	module.exports = ClearFix;
+
+/***/ },
 /* 211 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	module.exports = {
-	  DOWN: 40,
-	  ESC: 27,
-	  ENTER: 13,
-	  LEFT: 37,
-	  RIGHT: 39,
-	  SPACE: 32,
-	  TAB: 9,
-	  UP: 38
-	};
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var React = __webpack_require__(1);
+	var StylePropable = __webpack_require__(164);
+	var AutoPrefix = __webpack_require__(169);
+	var DefaultRawTheme = __webpack_require__(184);
+	var ThemeManager = __webpack_require__(188);
+
+	/**
+	 *  BeforeAfterWrapper
+	 *    An alternative for the ::before and ::after css pseudo-elements for
+	 *    components whose styles are defined in javascript instead of css.
+	 *
+	 *  Usage: For the element that we want to apply before and after elements to,
+	 *    wrap its children with BeforeAfterWrapper. For example:
+	 *
+	 *                                            <Paper>
+	 *  <Paper>                                     <div> // See notice
+	 *    <BeforeAfterWrapper>        renders         <div/> // before element
+	 *      [children of paper]       ------>         [children of paper]
+	 *    </BeforeAfterWrapper>                       <div/> // after element
+	 *  </Paper>                                    </div>
+	 *                                            </Paper>
+	 *
+	 *  Notice: Notice that this div bundles together our elements. If the element
+	 *    that we want to apply before and after elements is a HTML tag (i.e. a
+	 *    div, p, or button tag), we can avoid this extra nesting by passing using
+	 *    the BeforeAfterWrapper in place of said tag like so:
+	 *
+	 *  <p>
+	 *    <BeforeAfterWrapper>   do this instead   <BeforeAfterWrapper elementType='p'>
+	 *      [children of p]          ------>         [children of p]
+	 *    </BeforeAfterWrapper>                    </BeforeAfterWrapper>
+	 *  </p>
+	 *
+	 *  BeforeAfterWrapper features spread functionality. This means that we can
+	 *  pass HTML tag properties directly into the BeforeAfterWrapper tag.
+	 *
+	 *  When using BeforeAfterWrapper, ensure that the parent of the beforeElement
+	 *  and afterElement have a defined style position.
+	 */
+
+	var BeforeAfterWrapper = React.createClass({
+	  displayName: 'BeforeAfterWrapper',
+
+	  mixins: [StylePropable],
+
+	  contextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  propTypes: {
+	    beforeStyle: React.PropTypes.object,
+	    afterStyle: React.PropTypes.object,
+	    beforeElementType: React.PropTypes.string,
+	    afterElementType: React.PropTypes.string,
+	    elementType: React.PropTypes.string,
+	    style: React.PropTypes.object
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      beforeElementType: 'div',
+	      afterElementType: 'div',
+	      elementType: 'div'
+	    };
+	  },
+
+	  //for passing default theme context to children
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  getChildContext: function getChildContext() {
+	    return {
+	      muiTheme: this.state.muiTheme
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
+	    };
+	  },
+
+	  //to update theme inside state whenever a new theme is passed down
+	  //from the parent / owner using context
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+	    this.setState({ muiTheme: newMuiTheme });
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var beforeStyle = _props.beforeStyle;
+	    var afterStyle = _props.afterStyle;
+	    var beforeElementType = _props.beforeElementType;
+	    var afterElementType = _props.afterElementType;
+	    var elementType = _props.elementType;
+
+	    var other = _objectWithoutProperties(_props, ['beforeStyle', 'afterStyle', 'beforeElementType', 'afterElementType', 'elementType']);
+
+	    var beforeElement = undefined,
+	        afterElement = undefined;
+
+	    beforeStyle = AutoPrefix.all({ boxSizing: 'border-box' });
+	    afterStyle = AutoPrefix.all({ boxSizing: 'border-box' });
+
+	    if (this.props.beforeStyle) beforeElement = React.createElement(this.props.beforeElementType, {
+	      style: this.prepareStyles(beforeStyle, this.props.beforeStyle),
+	      key: "::before"
+	    });
+	    if (this.props.afterStyle) afterElement = React.createElement(this.props.afterElementType, {
+	      style: this.prepareStyles(afterStyle, this.props.afterStyle),
+	      key: "::after"
+	    });
+
+	    var children = [beforeElement, this.props.children, afterElement];
+
+	    var props = other;
+	    props.style = this.prepareStyles(this.props.style);
+
+	    return React.createElement(this.props.elementType, props, children);
+	  }
+
+	});
+
+	module.exports = BeforeAfterWrapper;
 
 /***/ },
 /* 212 */
@@ -38080,6 +38030,1094 @@
 
 	'use strict';
 
+	var React = __webpack_require__(1);
+	var PureRenderMixin = __webpack_require__(161);
+	var SvgIcon = __webpack_require__(222);
+
+	var ToggleCheckBoxOutlineBlank = React.createClass({
+	  displayName: 'ToggleCheckBoxOutlineBlank',
+
+	  mixins: [PureRenderMixin],
+
+	  render: function render() {
+	    return React.createElement(
+	      SvgIcon,
+	      this.props,
+	      React.createElement('path', { d: 'M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z' })
+	    );
+	  }
+
+	});
+
+	module.exports = ToggleCheckBoxOutlineBlank;
+
+/***/ },
+/* 222 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var React = __webpack_require__(1);
+	var StylePropable = __webpack_require__(164);
+	var Transitions = __webpack_require__(183);
+	var DefaultRawTheme = __webpack_require__(184);
+	var ThemeManager = __webpack_require__(188);
+
+	var SvgIcon = React.createClass({
+	  displayName: 'SvgIcon',
+
+	  mixins: [StylePropable],
+
+	  contextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  propTypes: {
+	    color: React.PropTypes.string,
+	    hoverColor: React.PropTypes.string,
+	    onMouseEnter: React.PropTypes.func,
+	    onMouseLeave: React.PropTypes.func,
+	    viewBox: React.PropTypes.string,
+	    style: React.PropTypes.object
+	  },
+
+	  //for passing default theme context to children
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  getChildContext: function getChildContext() {
+	    return {
+	      muiTheme: this.state.muiTheme
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      hovered: false,
+	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
+	    };
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      onMouseEnter: function onMouseEnter() {},
+	      onMouseLeave: function onMouseLeave() {},
+	      viewBox: '0 0 24 24'
+	    };
+	  },
+
+	  //to update theme inside state whenever a new theme is passed down
+	  //from the parent / owner using context
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+	    this.setState({ muiTheme: newMuiTheme });
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var children = _props.children;
+	    var color = _props.color;
+	    var hoverColor = _props.hoverColor;
+	    var onMouseEnter = _props.onMouseEnter;
+	    var onMouseLeave = _props.onMouseLeave;
+	    var style = _props.style;
+	    var viewBox = _props.viewBox;
+
+	    var other = _objectWithoutProperties(_props, ['children', 'color', 'hoverColor', 'onMouseEnter', 'onMouseLeave', 'style', 'viewBox']);
+
+	    var offColor = color ? color : style && style.fill ? style.fill : this.state.muiTheme.rawTheme.palette.textColor;
+	    var onColor = hoverColor ? hoverColor : offColor;
+
+	    var mergedStyles = this.prepareStyles({
+	      display: 'inline-block',
+	      height: 24,
+	      width: 24,
+	      userSelect: 'none',
+	      transition: Transitions.easeOut()
+	    }, style, {
+	      // Make sure our fill color overrides fill provided in props.style
+	      fill: this.state.hovered ? onColor : offColor
+	    });
+
+	    var events = hoverColor ? {
+	      onMouseEnter: this._handleMouseEnter,
+	      onMouseLeave: this._handleMouseLeave
+	    } : {};
+
+	    return React.createElement(
+	      'svg',
+	      _extends({}, other, events, {
+	        style: mergedStyles,
+	        viewBox: viewBox }),
+	      children
+	    );
+	  },
+
+	  _handleMouseLeave: function _handleMouseLeave(e) {
+	    this.setState({ hovered: false });
+	    this.props.onMouseLeave(e);
+	  },
+
+	  _handleMouseEnter: function _handleMouseEnter(e) {
+	    this.setState({ hovered: true });
+	    this.props.onMouseEnter(e);
+	  }
+	});
+
+	module.exports = SvgIcon;
+
+/***/ },
+/* 223 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var PureRenderMixin = __webpack_require__(161);
+	var SvgIcon = __webpack_require__(222);
+
+	var ToggleCheckBox = React.createClass({
+	  displayName: 'ToggleCheckBox',
+
+	  mixins: [PureRenderMixin],
+
+	  render: function render() {
+	    return React.createElement(
+	      SvgIcon,
+	      this.props,
+	      React.createElement('path', { d: 'M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z' })
+	    );
+	  }
+
+	});
+
+	module.exports = ToggleCheckBox;
+
+/***/ },
+/* 224 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var React = __webpack_require__(1);
+	var ReactDOM = __webpack_require__(158);
+	var PureRenderMixin = __webpack_require__(161);
+	var ColorManipulator = __webpack_require__(186);
+	var StylePropable = __webpack_require__(164);
+	var Colors = __webpack_require__(185);
+	var Transitions = __webpack_require__(183);
+	var Typography = __webpack_require__(203);
+	var EnhancedButton = __webpack_require__(225);
+	var IconButton = __webpack_require__(229);
+	var OpenIcon = __webpack_require__(232);
+	var CloseIcon = __webpack_require__(233);
+	var NestedList = __webpack_require__(234);
+	var DefaultRawTheme = __webpack_require__(184);
+	var ThemeManager = __webpack_require__(188);
+
+	var ListItem = React.createClass({
+	  displayName: 'ListItem',
+
+	  mixins: [PureRenderMixin, StylePropable],
+
+	  contextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  propTypes: {
+	    autoGenerateNestedIndicator: React.PropTypes.bool,
+	    disabled: React.PropTypes.bool,
+	    disableKeyboardFocus: React.PropTypes.bool,
+	    initiallyOpen: React.PropTypes.bool,
+	    innerDivStyle: React.PropTypes.object,
+	    insetChildren: React.PropTypes.bool,
+	    innerStyle: React.PropTypes.object,
+	    leftAvatar: React.PropTypes.element,
+	    leftCheckbox: React.PropTypes.element,
+	    leftIcon: React.PropTypes.element,
+	    nestedLevel: React.PropTypes.number,
+	    nestedItems: React.PropTypes.arrayOf(React.PropTypes.element),
+	    onKeyboardFocus: React.PropTypes.func,
+	    onMouseEnter: React.PropTypes.func,
+	    onMouseLeave: React.PropTypes.func,
+	    onNestedListToggle: React.PropTypes.func,
+	    onTouchStart: React.PropTypes.func,
+	    onTouchTap: React.PropTypes.func,
+	    rightAvatar: React.PropTypes.element,
+	    rightIcon: React.PropTypes.element,
+	    rightIconButton: React.PropTypes.element,
+	    rightToggle: React.PropTypes.element,
+	    primaryText: React.PropTypes.node,
+	    style: React.PropTypes.object,
+	    secondaryText: React.PropTypes.node,
+	    secondaryTextLines: React.PropTypes.oneOf([1, 2])
+	  },
+
+	  //for passing default theme context to children
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  getChildContext: function getChildContext() {
+	    return {
+	      muiTheme: this.state.muiTheme
+	    };
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      autoGenerateNestedIndicator: true,
+	      initiallyOpen: false,
+	      nestedItems: [],
+	      nestedLevel: 0,
+	      onKeyboardFocus: function onKeyboardFocus() {},
+	      onMouseEnter: function onMouseEnter() {},
+	      onMouseLeave: function onMouseLeave() {},
+	      onNestedListToggle: function onNestedListToggle() {},
+	      onTouchStart: function onTouchStart() {},
+	      secondaryTextLines: 1
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      hovered: false,
+	      isKeyboardFocused: false,
+	      open: this.props.initiallyOpen,
+	      rightIconButtonHovered: false,
+	      rightIconButtonKeyboardFocused: false,
+	      touch: false,
+	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
+	    };
+	  },
+
+	  //to update theme inside state whenever a new theme is passed down
+	  //from the parent / owner using context
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+	    this.setState({ muiTheme: newMuiTheme });
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var autoGenerateNestedIndicator = _props.autoGenerateNestedIndicator;
+	    var children = _props.children;
+	    var disabled = _props.disabled;
+	    var disableKeyboardFocus = _props.disableKeyboardFocus;
+	    var innerDivStyle = _props.innerDivStyle;
+	    var insetChildren = _props.insetChildren;
+	    var leftAvatar = _props.leftAvatar;
+	    var leftCheckbox = _props.leftCheckbox;
+	    var leftIcon = _props.leftIcon;
+	    var nestedItems = _props.nestedItems;
+	    var nestedLevel = _props.nestedLevel;
+	    var onKeyboardFocus = _props.onKeyboardFocus;
+	    var onMouseLeave = _props.onMouseLeave;
+	    var onMouseEnter = _props.onMouseEnter;
+	    var onTouchStart = _props.onTouchStart;
+	    var onTouchTap = _props.onTouchTap;
+	    var rightAvatar = _props.rightAvatar;
+	    var rightIcon = _props.rightIcon;
+	    var rightIconButton = _props.rightIconButton;
+	    var rightToggle = _props.rightToggle;
+	    var primaryText = _props.primaryText;
+	    var secondaryText = _props.secondaryText;
+	    var secondaryTextLines = _props.secondaryTextLines;
+	    var style = _props.style;
+
+	    var other = _objectWithoutProperties(_props, ['autoGenerateNestedIndicator', 'children', 'disabled', 'disableKeyboardFocus', 'innerDivStyle', 'insetChildren', 'leftAvatar', 'leftCheckbox', 'leftIcon', 'nestedItems', 'nestedLevel', 'onKeyboardFocus', 'onMouseLeave', 'onMouseEnter', 'onTouchStart', 'onTouchTap', 'rightAvatar', 'rightIcon', 'rightIconButton', 'rightToggle', 'primaryText', 'secondaryText', 'secondaryTextLines', 'style']);
+
+	    var textColor = this.state.muiTheme.rawTheme.palette.textColor;
+	    var hoverColor = ColorManipulator.fade(textColor, 0.1);
+	    var singleAvatar = !secondaryText && (leftAvatar || rightAvatar);
+	    var singleNoAvatar = !secondaryText && !(leftAvatar || rightAvatar);
+	    var twoLine = secondaryText && secondaryTextLines === 1;
+	    var threeLine = secondaryText && secondaryTextLines > 1;
+	    var hasCheckbox = leftCheckbox || rightToggle;
+
+	    var styles = {
+	      root: {
+	        backgroundColor: (this.state.isKeyboardFocused || this.state.hovered) && !this.state.rightIconButtonHovered && !this.state.rightIconButtonKeyboardFocused ? hoverColor : null,
+	        color: textColor,
+	        display: 'block',
+	        fontSize: 16,
+	        lineHeight: '16px',
+	        position: 'relative',
+	        transition: Transitions.easeOut()
+	      },
+
+	      //This inner div is needed so that ripples will span the entire container
+	      innerDiv: {
+	        marginLeft: nestedLevel * this.state.muiTheme.listItem.nestedLevelDepth,
+	        paddingLeft: leftIcon || leftAvatar || leftCheckbox || insetChildren ? 72 : 16,
+	        paddingRight: rightIcon || rightAvatar || rightIconButton ? 56 : rightToggle ? 72 : 16,
+	        paddingBottom: singleAvatar ? 20 : 16,
+	        paddingTop: singleNoAvatar || threeLine ? 16 : 20,
+	        position: 'relative'
+	      },
+
+	      icons: {
+	        height: 24,
+	        width: 24,
+	        display: 'block',
+	        position: 'absolute',
+	        top: twoLine ? 12 : singleAvatar ? 4 : 0,
+	        padding: 12
+	      },
+
+	      leftIcon: {
+	        color: Colors.grey600,
+	        fill: Colors.grey600,
+	        left: 4
+	      },
+
+	      rightIcon: {
+	        color: Colors.grey400,
+	        fill: Colors.grey400,
+	        right: 4
+	      },
+
+	      avatars: {
+	        position: 'absolute',
+	        top: singleAvatar ? 8 : 16
+	      },
+
+	      label: {
+	        cursor: 'pointer'
+	      },
+
+	      leftAvatar: {
+	        left: 16
+	      },
+
+	      rightAvatar: {
+	        right: 16
+	      },
+
+	      leftCheckbox: {
+	        position: 'absolute',
+	        display: 'block',
+	        width: 24,
+	        top: twoLine ? 24 : singleAvatar ? 16 : 12,
+	        left: 16
+	      },
+
+	      primaryText: {},
+
+	      rightIconButton: {
+	        position: 'absolute',
+	        display: 'block',
+	        top: twoLine ? 12 : singleAvatar ? 4 : 0,
+	        right: 4
+	      },
+
+	      rightToggle: {
+	        position: 'absolute',
+	        display: 'block',
+	        width: 54,
+	        top: twoLine ? 25 : singleAvatar ? 17 : 13,
+	        right: 8
+	      },
+
+	      secondaryText: {
+	        fontSize: 14,
+	        lineHeight: threeLine ? '18px' : '16px',
+	        height: threeLine ? 36 : 16,
+	        margin: 0,
+	        marginTop: 4,
+	        color: Typography.textLightBlack,
+
+	        //needed for 2 and 3 line ellipsis
+	        overflow: 'hidden',
+	        textOverflow: 'ellipsis',
+	        whiteSpace: threeLine ? null : 'nowrap',
+	        display: threeLine ? '-webkit-box' : null,
+	        WebkitLineClamp: threeLine ? 2 : null,
+	        WebkitBoxOrient: threeLine ? 'vertical' : null
+	      }
+	    };
+
+	    var contentChildren = [children];
+
+	    if (leftIcon) {
+	      this._pushElement(contentChildren, leftIcon, this.mergeStyles(styles.icons, styles.leftIcon));
+	    }
+
+	    if (rightIcon) {
+	      this._pushElement(contentChildren, rightIcon, this.mergeStyles(styles.icons, styles.rightIcon));
+	    }
+
+	    if (leftAvatar) {
+	      this._pushElement(contentChildren, leftAvatar, this.mergeStyles(styles.avatars, styles.leftAvatar));
+	    }
+
+	    if (rightAvatar) {
+	      this._pushElement(contentChildren, rightAvatar, this.mergeStyles(styles.avatars, styles.rightAvatar));
+	    }
+
+	    if (leftCheckbox) {
+	      this._pushElement(contentChildren, leftCheckbox, this.mergeStyles(styles.leftCheckbox));
+	    }
+
+	    //RightIconButtonElement
+	    var hasNestListItems = nestedItems.length;
+	    var hasRightElement = rightAvatar || rightIcon || rightIconButton || rightToggle;
+	    var needsNestedIndicator = hasNestListItems && autoGenerateNestedIndicator && !hasRightElement;
+
+	    if (rightIconButton || needsNestedIndicator) {
+	      var rightIconButtonElement = rightIconButton;
+	      var rightIconButtonHandlers = {
+	        onKeyboardFocus: this._handleRightIconButtonKeyboardFocus,
+	        onMouseEnter: this._handleRightIconButtonMouseEnter,
+	        onMouseLeave: this._handleRightIconButtonMouseLeave,
+	        onTouchTap: this._handleRightIconButtonTouchTap,
+	        onMouseDown: this._handleRightIconButtonMouseUp,
+	        onMouseUp: this._handleRightIconButtonMouseUp
+	      };
+
+	      // Create a nested list indicator icon if we don't have an icon on the right
+	      if (needsNestedIndicator) {
+	        rightIconButtonElement = this.state.open ? React.createElement(
+	          IconButton,
+	          null,
+	          React.createElement(OpenIcon, null)
+	        ) : React.createElement(
+	          IconButton,
+	          null,
+	          React.createElement(CloseIcon, null)
+	        );
+	        rightIconButtonHandlers.onTouchTap = this._handleNestedListToggle;
+	      }
+
+	      this._pushElement(contentChildren, rightIconButtonElement, this.mergeStyles(styles.rightIconButton), rightIconButtonHandlers);
+	    }
+
+	    if (rightToggle) {
+	      this._pushElement(contentChildren, rightToggle, this.mergeStyles(styles.rightToggle));
+	    }
+
+	    if (primaryText) {
+	      var secondaryTextElement = this._createTextElement(styles.primaryText, primaryText, 'primaryText');
+	      contentChildren.push(secondaryTextElement);
+	    }
+
+	    if (secondaryText) {
+	      var secondaryTextElement = this._createTextElement(styles.secondaryText, secondaryText, 'secondaryText');
+	      contentChildren.push(secondaryTextElement);
+	    }
+
+	    var nestedList = nestedItems.length ? React.createElement(
+	      NestedList,
+	      { nestedLevel: nestedLevel + 1, open: this.state.open },
+	      nestedItems
+	    ) : undefined;
+
+	    return hasCheckbox ? this._createLabelElement(styles, contentChildren) : disabled ? this._createDisabledElement(styles, contentChildren) : React.createElement(
+	      'div',
+	      null,
+	      React.createElement(
+	        EnhancedButton,
+	        _extends({}, other, {
+	          disabled: disabled,
+	          disableKeyboardFocus: disableKeyboardFocus || this.state.rightIconButtonKeyboardFocused,
+	          linkButton: true,
+	          onKeyboardFocus: this._handleKeyboardFocus,
+	          onMouseLeave: this._handleMouseLeave,
+	          onMouseEnter: this._handleMouseEnter,
+	          onTouchStart: this._handleTouchStart,
+	          onTouchTap: onTouchTap,
+	          ref: 'enhancedButton',
+	          style: this.mergeStyles(styles.root, style) }),
+	        React.createElement(
+	          'div',
+	          { style: this.prepareStyles(styles.innerDiv, innerDivStyle) },
+	          contentChildren
+	        )
+	      ),
+	      nestedList
+	    );
+	  },
+
+	  applyFocusState: function applyFocusState(focusState) {
+	    var button = this.refs.enhancedButton;
+	    var buttonEl = ReactDOM.findDOMNode(button);
+
+	    if (button) {
+	      switch (focusState) {
+	        case 'none':
+	          buttonEl.blur();
+	          break;
+	        case 'focused':
+	          buttonEl.focus();
+	          break;
+	        case 'keyboard-focused':
+	          button.setKeyboardFocus();
+	          buttonEl.focus();
+	          break;
+	      }
+	    }
+	  },
+
+	  _createDisabledElement: function _createDisabledElement(styles, contentChildren) {
+	    var _props2 = this.props;
+	    var innerDivStyle = _props2.innerDivStyle;
+	    var style = _props2.style;
+
+	    var mergedDivStyles = this.prepareStyles(styles.root, styles.innerDiv, innerDivStyle, style);
+
+	    return React.createElement('div', { style: mergedDivStyles }, contentChildren);
+	  },
+
+	  _createLabelElement: function _createLabelElement(styles, contentChildren) {
+	    var _props3 = this.props;
+	    var innerDivStyle = _props3.innerDivStyle;
+	    var style = _props3.style;
+
+	    var mergedLabelStyles = this.prepareStyles(styles.root, styles.innerDiv, innerDivStyle, styles.label, style);
+
+	    return React.createElement('label', { style: mergedLabelStyles }, contentChildren);
+	  },
+
+	  _createTextElement: function _createTextElement(styles, data, key) {
+	    var isAnElement = React.isValidElement(data);
+	    var mergedStyles = isAnElement ? this.prepareStyles(styles, data.props.style) : null;
+
+	    return isAnElement ? React.cloneElement(data, {
+	      key: key,
+	      style: mergedStyles
+	    }) : React.createElement(
+	      'div',
+	      { key: key, style: this.prepareStyles(styles) },
+	      data
+	    );
+	  },
+
+	  _handleKeyboardFocus: function _handleKeyboardFocus(e, isKeyboardFocused) {
+	    this.setState({ isKeyboardFocused: isKeyboardFocused });
+	    this.props.onKeyboardFocus(e, isKeyboardFocused);
+	  },
+
+	  _handleMouseEnter: function _handleMouseEnter(e) {
+	    if (!this.state.touch) this.setState({ hovered: true });
+	    this.props.onMouseEnter(e);
+	  },
+
+	  _handleMouseLeave: function _handleMouseLeave(e) {
+	    this.setState({ hovered: false });
+	    this.props.onMouseLeave(e);
+	  },
+
+	  _handleNestedListToggle: function _handleNestedListToggle(e) {
+	    e.stopPropagation();
+	    this.setState({ open: !this.state.open });
+	    this.props.onNestedListToggle(this);
+	  },
+
+	  _handleRightIconButtonKeyboardFocus: function _handleRightIconButtonKeyboardFocus(e, isKeyboardFocused) {
+	    var iconButton = this.props.rightIconButton;
+	    var newState = {};
+
+	    newState.rightIconButtonKeyboardFocused = isKeyboardFocused;
+	    if (isKeyboardFocused) newState.isKeyboardFocused = false;
+	    this.setState(newState);
+
+	    if (iconButton && iconButton.props.onKeyboardFocus) iconButton.props.onKeyboardFocus(e, isKeyboardFocused);
+	  },
+
+	  _handleRightIconButtonMouseDown: function _handleRightIconButtonMouseDown(e) {
+	    var iconButton = this.props.rightIconButton;
+	    e.stopPropagation();
+	    if (iconButton && iconButton.props.onMouseDown) iconButton.props.onMouseDown(e);
+	  },
+
+	  _handleRightIconButtonMouseLeave: function _handleRightIconButtonMouseLeave(e) {
+	    var iconButton = this.props.rightIconButton;
+	    this.setState({ rightIconButtonHovered: false });
+	    if (iconButton && iconButton.props.onMouseLeave) iconButton.props.onMouseLeave(e);
+	  },
+
+	  _handleRightIconButtonMouseEnter: function _handleRightIconButtonMouseEnter(e) {
+	    var iconButton = this.props.rightIconButton;
+	    this.setState({ rightIconButtonHovered: true });
+	    if (iconButton && iconButton.props.onMouseEnter) iconButton.props.onMouseEnter(e);
+	  },
+
+	  _handleRightIconButtonMouseUp: function _handleRightIconButtonMouseUp(e) {
+	    var iconButton = this.props.rightIconButton;
+	    e.stopPropagation();
+	    if (iconButton && iconButton.props.onMouseUp) iconButton.props.onMouseUp(e);
+	  },
+
+	  _handleRightIconButtonTouchTap: function _handleRightIconButtonTouchTap(e) {
+	    var iconButton = this.props.rightIconButton;
+
+	    //Stop the event from bubbling up to the list-item
+	    e.stopPropagation();
+	    if (iconButton && iconButton.props.onTouchTap) iconButton.props.onTouchTap(e);
+	  },
+
+	  _handleTouchStart: function _handleTouchStart(e) {
+	    this.setState({ touch: true });
+	    this.props.onTouchStart(e);
+	  },
+
+	  _pushElement: function _pushElement(children, element, baseStyles, additionalProps) {
+	    if (element) {
+	      var styles = this.mergeStyles(baseStyles, element.props.style);
+	      children.push(React.cloneElement(element, _extends({
+	        key: children.length,
+	        style: styles
+	      }, additionalProps)));
+	    }
+	  }
+
+	});
+
+	module.exports = ListItem;
+
+/***/ },
+/* 225 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+	var React = __webpack_require__(1);
+	var PureRenderMixin = __webpack_require__(161);
+	var StylePropable = __webpack_require__(164);
+	var Colors = __webpack_require__(185);
+	var Children = __webpack_require__(226);
+	var Events = __webpack_require__(209);
+	var KeyCode = __webpack_require__(207);
+	var FocusRipple = __webpack_require__(212);
+	var TouchRipple = __webpack_require__(218);
+	var DefaultRawTheme = __webpack_require__(184);
+	var ThemeManager = __webpack_require__(188);
+
+	var styleInjected = false;
+	var listening = false;
+	var tabPressed = false;
+
+	function injectStyle() {
+	  if (!styleInjected) {
+	    // Remove inner padding and border in Firefox 4+.
+	    var style = document.createElement("style");
+	    style.innerHTML = '\n      button::-moz-focus-inner,\n      input::-moz-focus-inner {\n        border: 0;\n        padding: 0;\n      }\n    ';
+
+	    document.body.appendChild(style);
+	    styleInjected = true;
+	  }
+	}
+
+	function listenForTabPresses() {
+	  if (!listening) {
+	    Events.on(window, 'keydown', function (e) {
+	      tabPressed = e.keyCode === KeyCode.TAB;
+	    });
+	    listening = true;
+	  }
+	}
+
+	var EnhancedButton = React.createClass({
+	  displayName: 'EnhancedButton',
+
+	  mixins: [PureRenderMixin, StylePropable],
+
+	  contextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  //for passing default theme context to children
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  },
+
+	  getChildContext: function getChildContext() {
+	    return {
+	      muiTheme: this.state.muiTheme
+	    };
+	  },
+
+	  propTypes: {
+	    centerRipple: React.PropTypes.bool,
+	    containerElement: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.element]),
+	    disabled: React.PropTypes.bool,
+	    disableFocusRipple: React.PropTypes.bool,
+	    disableKeyboardFocus: React.PropTypes.bool,
+	    disableTouchRipple: React.PropTypes.bool,
+	    keyboardFocused: React.PropTypes.bool,
+	    linkButton: React.PropTypes.bool,
+	    focusRippleColor: React.PropTypes.string,
+	    touchRippleColor: React.PropTypes.string,
+	    focusRippleOpacity: React.PropTypes.number,
+	    touchRippleOpacity: React.PropTypes.number,
+	    onBlur: React.PropTypes.func,
+	    onFocus: React.PropTypes.func,
+	    onKeyboardFocus: React.PropTypes.func,
+	    onKeyDown: React.PropTypes.func,
+	    onKeyUp: React.PropTypes.func,
+	    onTouchTap: React.PropTypes.func,
+	    tabIndex: React.PropTypes.number,
+	    style: React.PropTypes.object
+	  },
+
+	  getDefaultProps: function getDefaultProps() {
+	    return {
+	      containerElement: 'button',
+	      onBlur: function onBlur() {},
+	      onFocus: function onFocus() {},
+	      onKeyboardFocus: function onKeyboardFocus() {},
+	      onKeyDown: function onKeyDown() {},
+	      onKeyUp: function onKeyUp() {},
+	      onTouchTap: function onTouchTap() {},
+	      tabIndex: 0,
+	      type: 'button'
+	    };
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      isKeyboardFocused: !this.props.disabled && this.props.keyboardFocused && !this.props.disableKeyboardFocus,
+	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
+	    };
+	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
+	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
+	    this.setState({ muiTheme: newMuiTheme });
+
+	    if ((nextProps.disabled || nextProps.disableKeyboardFocus) && this.state.isKeyboardFocused) {
+	      this.setState({ isKeyboardFocused: false });
+	      if (nextProps.onKeyboardFocus) {
+	        nextProps.onKeyboardFocus(null, false);
+	      }
+	    }
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    injectStyle();
+	    listenForTabPresses();
+	  },
+
+	  render: function render() {
+	    var _props = this.props;
+	    var centerRipple = _props.centerRipple;
+	    var children = _props.children;
+	    var containerElement = _props.containerElement;
+	    var disabled = _props.disabled;
+	    var disableFocusRipple = _props.disableFocusRipple;
+	    var disableKeyboardFocus = _props.disableKeyboardFocus;
+	    var disableTouchRipple = _props.disableTouchRipple;
+	    var focusRippleColor = _props.focusRippleColor;
+	    var focusRippleOpacity = _props.focusRippleOpacity;
+	    var linkButton = _props.linkButton;
+	    var touchRippleColor = _props.touchRippleColor;
+	    var touchRippleOpacity = _props.touchRippleOpacity;
+	    var onBlur = _props.onBlur;
+	    var onFocus = _props.onFocus;
+	    var onKeyUp = _props.onKeyUp;
+	    var onKeyDown = _props.onKeyDown;
+	    var onTouchTap = _props.onTouchTap;
+	    var style = _props.style;
+	    var tabIndex = _props.tabIndex;
+	    var type = _props.type;
+
+	    var other = _objectWithoutProperties(_props, ['centerRipple', 'children', 'containerElement', 'disabled', 'disableFocusRipple', 'disableKeyboardFocus', 'disableTouchRipple', 'focusRippleColor', 'focusRippleOpacity', 'linkButton', 'touchRippleColor', 'touchRippleOpacity', 'onBlur', 'onFocus', 'onKeyUp', 'onKeyDown', 'onTouchTap', 'style', 'tabIndex', 'type']);
+
+	    var mergedStyles = this.prepareStyles({
+	      border: 10,
+	      background: 'none',
+	      boxSizing: 'border-box',
+	      display: 'inline-block',
+	      font: 'inherit',
+	      fontFamily: this.state.muiTheme.rawTheme.fontFamily,
+	      tapHighlightColor: Colors.transparent,
+	      appearance: linkButton ? null : 'button',
+	      cursor: disabled ? 'default' : 'pointer',
+	      textDecoration: 'none',
+	      outline: 'none'
+	    }, style);
+
+	    if (disabled && linkButton) {
+	      return React.createElement(
+	        'span',
+	        _extends({}, other, {
+	          style: mergedStyles }),
+	        children
+	      );
+	    }
+
+	    var buttonProps = _extends({}, other, {
+	      style: mergedStyles,
+	      disabled: disabled,
+	      onBlur: this._handleBlur,
+	      onFocus: this._handleFocus,
+	      onTouchTap: this._handleTouchTap,
+	      onKeyUp: this._handleKeyUp,
+	      onKeyDown: this._handleKeyDown,
+	      tabIndex: tabIndex,
+	      type: type
+	    });
+	    var buttonChildren = this._createButtonChildren();
+
+	    return React.isValidElement(containerElement) ? React.cloneElement(containerElement, buttonProps, buttonChildren) : React.createElement(linkButton ? 'a' : containerElement, buttonProps, buttonChildren);
+	  },
+
+	  isKeyboardFocused: function isKeyboardFocused() {
+	    return this.state.isKeyboardFocused;
+	  },
+
+	  removeKeyboardFocus: function removeKeyboardFocus(e) {
+	    if (this.state.isKeyboardFocused) {
+	      this.setState({ isKeyboardFocused: false });
+	      this.props.onKeyboardFocus(e, false);
+	    }
+	  },
+
+	  setKeyboardFocus: function setKeyboardFocus(e) {
+	    if (!this.state.isKeyboardFocused) {
+	      this.setState({ isKeyboardFocused: true });
+	      this.props.onKeyboardFocus(e, true);
+	    }
+	  },
+
+	  _cancelFocusTimeout: function _cancelFocusTimeout() {
+	    if (this._focusTimeout) {
+	      clearTimeout(this._focusTimeout);
+	      this._focusTimeout = null;
+	    }
+	  },
+
+	  _createButtonChildren: function _createButtonChildren() {
+	    var _props2 = this.props;
+	    var centerRipple = _props2.centerRipple;
+	    var children = _props2.children;
+	    var disabled = _props2.disabled;
+	    var disableFocusRipple = _props2.disableFocusRipple;
+	    var disableKeyboardFocus = _props2.disableKeyboardFocus;
+	    var disableTouchRipple = _props2.disableTouchRipple;
+	    var focusRippleColor = _props2.focusRippleColor;
+	    var focusRippleOpacity = _props2.focusRippleOpacity;
+	    var touchRippleColor = _props2.touchRippleColor;
+	    var touchRippleOpacity = _props2.touchRippleOpacity;
+	    var isKeyboardFocused = this.state.isKeyboardFocused;
+
+	    //Focus Ripple
+	    var focusRipple = isKeyboardFocused && !disabled && !disableFocusRipple && !disableKeyboardFocus ? React.createElement(FocusRipple, {
+	      color: focusRippleColor,
+	      opacity: focusRippleOpacity,
+	      show: isKeyboardFocused
+	    }) : undefined;
+
+	    //Touch Ripple
+	    var touchRipple = !disabled && !disableTouchRipple ? React.createElement(
+	      TouchRipple,
+	      {
+	        centerRipple: centerRipple,
+	        color: touchRippleColor,
+	        opacity: touchRippleOpacity },
+	      children
+	    ) : undefined;
+
+	    return Children.create({
+	      focusRipple: focusRipple,
+	      touchRipple: touchRipple,
+	      children: touchRipple ? undefined : children
+	    });
+	  },
+
+	  _handleKeyDown: function _handleKeyDown(e) {
+	    if (!this.props.disabled && !this.props.disableKeyboardFocus) {
+	      if (e.keyCode === KeyCode.ENTER && this.state.isKeyboardFocused) {
+	        this._handleTouchTap(e);
+	      }
+	    }
+	    this.props.onKeyDown(e);
+	  },
+
+	  _handleKeyUp: function _handleKeyUp(e) {
+	    if (!this.props.disabled && e.keyCode === KeyCode.SPACE && this.state.isKeyboardFocused) {
+	      this._handleTouchTap(e);
+	    }
+	    this.props.onKeyUp(e);
+	  },
+
+	  _handleBlur: function _handleBlur(e) {
+	    this._cancelFocusTimeout();
+	    this.removeKeyboardFocus(e);
+	    this.props.onBlur(e);
+	  },
+
+	  _handleFocus: function _handleFocus(e) {
+	    var _this = this;
+
+	    if (!this.props.disabled && !this.props.disableKeyboardFocus) {
+	      //setTimeout is needed because the focus event fires first
+	      //Wait so that we can capture if this was a keyboard focus
+	      //or touch focus
+	      this._focusTimeout = setTimeout(function () {
+	        if (tabPressed) {
+	          _this.setKeyboardFocus(e);
+	        }
+	      }, 150);
+
+	      this.props.onFocus(e);
+	    }
+	  },
+
+	  _handleTouchTap: function _handleTouchTap(e) {
+	    this._cancelFocusTimeout();
+	    if (!this.props.disabled) {
+	      tabPressed = false;
+	      this.removeKeyboardFocus(e);
+	      this.props.onTouchTap(e);
+	    }
+	  }
+
+	});
+
+	module.exports = EnhancedButton;
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var createFragment = __webpack_require__(227);
+
+	module.exports = {
+
+	  create: function create(fragments) {
+	    var newFragments = {};
+	    var validChildrenCount = 0;
+	    var firstKey = undefined;
+
+	    //Only create non-empty key fragments
+	    for (var key in fragments) {
+	      var currentChild = fragments[key];
+
+	      if (currentChild) {
+	        if (validChildrenCount === 0) firstKey = key;
+	        newFragments[key] = currentChild;
+	        validChildrenCount++;
+	      }
+	    }
+
+	    if (validChildrenCount === 0) return undefined;
+	    if (validChildrenCount === 1) return newFragments[firstKey];
+	    return createFragment(newFragments);
+	  },
+
+	  extend: function extend(children, extendedProps, extendedChildren) {
+
+	    return React.isValidElement(children) ? React.Children.map(children, function (child) {
+
+	      var newProps = typeof extendedProps === 'function' ? extendedProps(child) : extendedProps;
+
+	      var newChildren = typeof extendedChildren === 'function' ? extendedChildren(child) : extendedChildren ? extendedChildren : child.props.children;
+
+	      return React.cloneElement(child, newProps, newChildren);
+	    }) : children;
+	  }
+
+	};
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(228).create;
+
+/***/ },
+/* 228 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule ReactFragment
+	 */
+
+	'use strict';
+
+	var ReactChildren = __webpack_require__(110);
+	var ReactElement = __webpack_require__(42);
+
+	var emptyFunction = __webpack_require__(15);
+	var invariant = __webpack_require__(13);
+	var warning = __webpack_require__(25);
+
+	/**
+	 * We used to allow keyed objects to serve as a collection of ReactElements,
+	 * or nested sets. This allowed us a way to explicitly key a set a fragment of
+	 * components. This is now being replaced with an opaque data structure.
+	 * The upgrade path is to call React.addons.createFragment({ key: value }) to
+	 * create a keyed fragment. The resulting data structure is an array.
+	 */
+
+	var numericPropertyRegex = /^\d+$/;
+
+	var warnedAboutNumeric = false;
+
+	var ReactFragment = {
+	  // Wrap a keyed object in an opaque proxy that warns you if you access any
+	  // of its properties.
+	  create: function (object) {
+	    if (typeof object !== 'object' || !object || Array.isArray(object)) {
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment only accepts a single object. Got: %s', object) : undefined;
+	      return object;
+	    }
+	    if (ReactElement.isValidElement(object)) {
+	      process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment does not accept a ReactElement ' + 'without a wrapper object.') : undefined;
+	      return object;
+	    }
+
+	    !(object.nodeType !== 1) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'React.addons.createFragment(...): Encountered an invalid child; DOM ' + 'elements are not valid children of React components.') : invariant(false) : undefined;
+
+	    var result = [];
+
+	    for (var key in object) {
+	      if (process.env.NODE_ENV !== 'production') {
+	        if (!warnedAboutNumeric && numericPropertyRegex.test(key)) {
+	          process.env.NODE_ENV !== 'production' ? warning(false, 'React.addons.createFragment(...): Child objects should have ' + 'non-numeric keys so ordering is preserved.') : undefined;
+	          warnedAboutNumeric = true;
+	        }
+	      }
+	      ReactChildren.mapIntoWithKeyPrefixInternal(object[key], result, key, emptyFunction.thatReturnsArgument);
+	    }
+
+	    return result;
+	  }
+	};
+
+	module.exports = ReactFragment;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+
+/***/ },
+/* 229 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -38089,10 +39127,10 @@
 	var ContextPure = __webpack_require__(199);
 	var Transitions = __webpack_require__(183);
 	var PropTypes = __webpack_require__(182);
-	var EnhancedButton = __webpack_require__(206);
-	var FontIcon = __webpack_require__(222);
-	var Tooltip = __webpack_require__(223);
-	var Children = __webpack_require__(207);
+	var EnhancedButton = __webpack_require__(225);
+	var FontIcon = __webpack_require__(230);
+	var Tooltip = __webpack_require__(231);
+	var Children = __webpack_require__(226);
 	var DefaultRawTheme = __webpack_require__(184);
 	var ThemeManager = __webpack_require__(188);
 
@@ -38323,7 +39361,7 @@
 	module.exports = IconButton;
 
 /***/ },
-/* 222 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38430,7 +39468,7 @@
 	module.exports = FontIcon;
 
 /***/ },
-/* 223 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38607,14 +39645,14 @@
 	module.exports = Tooltip;
 
 /***/ },
-/* 224 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var PureRenderMixin = __webpack_require__(161);
-	var SvgIcon = __webpack_require__(225);
+	var SvgIcon = __webpack_require__(222);
 
 	var NavigationArrowDropUp = React.createClass({
 	  displayName: 'NavigationArrowDropUp',
@@ -38634,134 +39672,14 @@
 	module.exports = NavigationArrowDropUp;
 
 /***/ },
-/* 225 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-	var React = __webpack_require__(1);
-	var StylePropable = __webpack_require__(164);
-	var Transitions = __webpack_require__(183);
-	var DefaultRawTheme = __webpack_require__(184);
-	var ThemeManager = __webpack_require__(188);
-
-	var SvgIcon = React.createClass({
-	  displayName: 'SvgIcon',
-
-	  mixins: [StylePropable],
-
-	  contextTypes: {
-	    muiTheme: React.PropTypes.object
-	  },
-
-	  propTypes: {
-	    color: React.PropTypes.string,
-	    hoverColor: React.PropTypes.string,
-	    onMouseEnter: React.PropTypes.func,
-	    onMouseLeave: React.PropTypes.func,
-	    viewBox: React.PropTypes.string,
-	    style: React.PropTypes.object
-	  },
-
-	  //for passing default theme context to children
-	  childContextTypes: {
-	    muiTheme: React.PropTypes.object
-	  },
-
-	  getChildContext: function getChildContext() {
-	    return {
-	      muiTheme: this.state.muiTheme
-	    };
-	  },
-
-	  getInitialState: function getInitialState() {
-	    return {
-	      hovered: false,
-	      muiTheme: this.context.muiTheme ? this.context.muiTheme : ThemeManager.getMuiTheme(DefaultRawTheme)
-	    };
-	  },
-
-	  getDefaultProps: function getDefaultProps() {
-	    return {
-	      onMouseEnter: function onMouseEnter() {},
-	      onMouseLeave: function onMouseLeave() {},
-	      viewBox: '0 0 24 24'
-	    };
-	  },
-
-	  //to update theme inside state whenever a new theme is passed down
-	  //from the parent / owner using context
-	  componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
-	    var newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
-	    this.setState({ muiTheme: newMuiTheme });
-	  },
-
-	  render: function render() {
-	    var _props = this.props;
-	    var children = _props.children;
-	    var color = _props.color;
-	    var hoverColor = _props.hoverColor;
-	    var onMouseEnter = _props.onMouseEnter;
-	    var onMouseLeave = _props.onMouseLeave;
-	    var style = _props.style;
-	    var viewBox = _props.viewBox;
-
-	    var other = _objectWithoutProperties(_props, ['children', 'color', 'hoverColor', 'onMouseEnter', 'onMouseLeave', 'style', 'viewBox']);
-
-	    var offColor = color ? color : style && style.fill ? style.fill : this.state.muiTheme.rawTheme.palette.textColor;
-	    var onColor = hoverColor ? hoverColor : offColor;
-
-	    var mergedStyles = this.prepareStyles({
-	      display: 'inline-block',
-	      height: 24,
-	      width: 24,
-	      userSelect: 'none',
-	      transition: Transitions.easeOut()
-	    }, style, {
-	      // Make sure our fill color overrides fill provided in props.style
-	      fill: this.state.hovered ? onColor : offColor
-	    });
-
-	    var events = hoverColor ? {
-	      onMouseEnter: this._handleMouseEnter,
-	      onMouseLeave: this._handleMouseLeave
-	    } : {};
-
-	    return React.createElement(
-	      'svg',
-	      _extends({}, other, events, {
-	        style: mergedStyles,
-	        viewBox: viewBox }),
-	      children
-	    );
-	  },
-
-	  _handleMouseLeave: function _handleMouseLeave(e) {
-	    this.setState({ hovered: false });
-	    this.props.onMouseLeave(e);
-	  },
-
-	  _handleMouseEnter: function _handleMouseEnter(e) {
-	    this.setState({ hovered: true });
-	    this.props.onMouseEnter(e);
-	  }
-	});
-
-	module.exports = SvgIcon;
-
-/***/ },
-/* 226 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
 	var PureRenderMixin = __webpack_require__(161);
-	var SvgIcon = __webpack_require__(225);
+	var SvgIcon = __webpack_require__(222);
 
 	var NavigationArrowDropDown = React.createClass({
 	  displayName: 'NavigationArrowDropDown',
@@ -38781,7 +39699,7 @@
 	module.exports = NavigationArrowDropDown;
 
 /***/ },
-/* 227 */
+/* 234 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38835,7 +39753,7 @@
 	module.exports = NestedList;
 
 /***/ },
-/* 228 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38910,18 +39828,19 @@
 	module.exports = ListDivider;
 
 /***/ },
-/* 229 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/** @jsx React.DOM */var React = __webpack_require__(1);
 	var Paper = __webpack_require__(160);
-	var FlatButton = __webpack_require__(230);
-	var RaisedButton = __webpack_require__(232);
-
+	var FlatButton = __webpack_require__(237);
+	var RaisedButton = __webpack_require__(239);
+	var BottomEdge = __webpack_require__(240);
 	module.exports = React.createClass({displayName: "module.exports",
 		render: function(){
 			return (
-				React.createElement(Paper, {id: "list_footer"}, 
+				React.createElement("div", {id: "foot-pad"}, 
+				React.createElement(Paper, {id: "list_footer", zDepth: 1}, 
 					React.createElement("span", {id: "left-todo"}, "# left"), 
 						React.createElement("div", {id: "button-panel"}, 
 								React.createElement("div", {className: "filters"}, React.createElement(RaisedButton, {className: 'buttons', labelStyle: {fontSize: '0.4rem'}, label: "All"})), 
@@ -38929,6 +39848,8 @@
 								React.createElement("div", {className: "filters"}, React.createElement(RaisedButton, {className: 'buttons', labelStyle: {fontSize: '0.4rem'}, label: "Completed"})), 
 								React.createElement("div", {className: "filters"}, React.createElement(RaisedButton, {className: 'buttons', labelStyle: {fontSize: '0.4rem'}, label: "Clear Completed"}))
 						)
+				), 
+				React.createElement(BottomEdge, null)
 				)
 			)
 		}
@@ -38936,7 +39857,7 @@
 
 
 /***/ },
-/* 230 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38948,12 +39869,12 @@
 	var React = __webpack_require__(1);
 	var ContextPure = __webpack_require__(199);
 	var Transitions = __webpack_require__(183);
-	var Children = __webpack_require__(207);
+	var Children = __webpack_require__(226);
 	var ColorManipulator = __webpack_require__(186);
 	var ImmutabilityHelper = __webpack_require__(165);
 	var Typography = __webpack_require__(203);
-	var EnhancedButton = __webpack_require__(206);
-	var FlatButtonLabel = __webpack_require__(231);
+	var EnhancedButton = __webpack_require__(225);
+	var FlatButtonLabel = __webpack_require__(238);
 	var DefaultRawTheme = __webpack_require__(184);
 	var ThemeManager = __webpack_require__(188);
 
@@ -39155,7 +40076,7 @@
 	module.exports = FlatButton;
 
 /***/ },
-/* 231 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39237,7 +40158,7 @@
 	module.exports = FlatButtonLabel;
 
 /***/ },
-/* 232 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39251,9 +40172,9 @@
 	var StylePropable = __webpack_require__(164);
 	var Transitions = __webpack_require__(183);
 	var ColorManipulator = __webpack_require__(186);
-	var Children = __webpack_require__(207);
+	var Children = __webpack_require__(226);
 	var Typography = __webpack_require__(203);
-	var EnhancedButton = __webpack_require__(206);
+	var EnhancedButton = __webpack_require__(225);
 	var Paper = __webpack_require__(160);
 	var DefaultRawTheme = __webpack_require__(184);
 	var ThemeManager = __webpack_require__(188);
@@ -39519,7 +40440,7 @@
 	module.exports = RaisedButton;
 
 /***/ },
-/* 233 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/** @jsx React.DOM */var React = __webpack_require__(1);
@@ -39538,7 +40459,7 @@
 
 
 /***/ },
-/* 234 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var Backbone = __webpack_require__(191);
@@ -39554,16 +40475,16 @@
 
 
 /***/ },
-/* 235 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(236);
+	var content = __webpack_require__(243);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(238)(content, {});
+	var update = __webpack_require__(245)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -39580,21 +40501,21 @@
 	}
 
 /***/ },
-/* 236 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(237)();
+	exports = module.exports = __webpack_require__(244)();
 	// imports
 
 
 	// module
-	exports.push([module.id, "#container {\n\twidth: 50%;\n\tmargin: auto;\n\tbackground: #F4F4F4;\n\tborder-radius: 6px;\n\ttext-align: center;\n\tpadding-bottom: 20px;\n}\n\n#container h1 {\n\tfont-family: 'Lato', sans-serif;\n\tfont-weight: 100;\n\tfont-size: 3.5rem;\n\tcolor: #00BCD4;\n}\n\n#notepad {\n\twidth: 90%;\n\tmargin: auto;\n\tmargin-top: -5px;\n}\n#todo-backing {\n\t/*margin-bottom: 40px;*/\n}\n#list_footer{\n\tposition: relative;\n\tmargin-top: -20px;\n\twidth: 100;\n\theight: 45px;\n\tpadding-top: 5px;\n\tpadding-bottom: 5px;\n\tpadding-left: 0;\n\tmargin: auto;\n\t/*margin-bottom: -5px;*/\n}\n#left-todo {\n\tposition: absolute;\n\tleft: 40px;\n\ttop: 15px;\n\tfont-size: 0.5rem;\n\tmargin-left: -20px;\n}\n#button-panel {\n\tposition: absolute;\n\tleft: 70px;\n\tmargin-top: 3px;\n\n}\n.filters {\n\tdisplay: inline-block;\n\tmargin-right: 10px;\n\t/*margin-bottom: 8px;*/\n}\n.buttons {\n\twidth: 30px;\n\theight: 10px;\n}\n\n#bottom_edge {\n\twidth: 100%;\n\tmargin-top: 52px;\n\tmargin: auto;\n}\n.layer1 {\n\twidth: 99%;\n\theight: 8px;\n\tmargin: auto;\n}\n.layer2 {\n\twidth: 98%;\n\theight: 5px;\n\tmargin: auto;\n}\n", ""]);
+	exports.push([module.id, "ul {\n\tlist-style: none;\n}\n\n#container {\n\twidth: 50%;\n\tmargin: auto;\n\tbackground: #F4F4F4;\n\tborder-radius: 6px;\n\ttext-align: center;\n\tpadding-bottom: 60px;\n}\n\n#container h1 {\n\tfont-family: 'Lato', sans-serif;\n\tfont-weight: 100;\n\tfont-size: 4rem;\n\tcolor: #00BCD4;\n}\n\n#notepad {\n\twidth: 90%;\n\tmargin: auto;\n\tmargin-top: -5px;\n}\n#top-mast {\n\tpadding: 10px 0;\n}\n#todo-panel {\n\tmargin-bottom: -10px;\n}\n#todo-backing {\n\tpadding: 10px 0 10px 0;\n}\n.item-block {\n\tposition: relative;\n\tmargin-left: -40px;\n\tpadding-top: 15px;\n\tpadding-bottom: 10px;\n\theight: 30px;\n}\nli {\n\tposition: relative;\n}\n.check {\n\tposition: absolute;\n\tleft: 10px;\n\ttop: 15px;\n}\n.text-place {\n\tposition: absolute;\n\ttop: 15px;\n\tleft: 40px;\n}\n.x-out {\n\tposition: absolute;\n\ttop: 15px;\n\tright: 25px;\n\tcolor: #666;\n}\n.strikeout {\n\ttext-decoration: line-through;\n\tcolor: #C4BEBE;\n}\n#list_footer{\n\tposition: relative;\n\twidth: 100;\n\theight: 45px;\n\tpadding-top: 5px;\n\tpadding-bottom: 5px;\n\tpadding-left: 0;\n\tmargin: auto;\n\t/*margin-bottom: -5px;*/\n}\n#foot-pad {\n\tmargin-top: -10px;\n}\n\n#left-todo {\n\tposition: absolute;\n\tleft: 40px;\n\ttop: 15px;\n\tfont-size: 0.5rem;\n\tmargin-left: -20px;\n}\n#button-panel {\n\tposition: absolute;\n\tleft: 80px;\n\tmargin-top: 3px;\n}\n\n.filters {\n\tdisplay: inline-block;\n\tmargin-right: 25px;\n\t/*margin-bottom: 8px;*/\n}\n.buttons {\n\twidth: 30px;\n\theight: 10px;\n}\n\n#bottom_edge {\n\twidth: 100%;\n\tmargin-top: 52px;\n\tmargin: auto;\n}\n.layer1 {\n\twidth: 99%;\n\theight: 8px;\n\tmargin: auto;\n}\n.layer2 {\n\twidth: 98%;\n\theight: 5px;\n\tmargin: auto;\n}\n", ""]);
 
 	// exports
 
 
 /***/ },
-/* 237 */
+/* 244 */
 /***/ function(module, exports) {
 
 	/*
@@ -39650,7 +40571,7 @@
 
 
 /***/ },
-/* 238 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*

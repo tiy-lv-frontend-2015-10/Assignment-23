@@ -8,7 +8,8 @@ module.exports = React.createClass({
 
 	getInitialState: function(){
 		return {
-			text: ''
+			text: '',
+			status: null
 		}
 	},
 	_handleTextChange: function(evt) {
@@ -22,16 +23,9 @@ module.exports = React.createClass({
 		var newTodo = new TodoItem();
 		newTodo.set({
 			todoItem: this.state.text,
-			active: true,
-			completed: false
+			status: 'active'
 		});
-		newTodo.save({}, {
-			success: function(resp){
-			},
-			error: function(err){
-				console.log(err);
-			}
-		});
+		newTodo.save();
 		this._handleUpdate(newTodo);
 		this.setState({text: ''});
 	},

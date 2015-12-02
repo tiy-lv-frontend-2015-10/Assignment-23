@@ -7,6 +7,9 @@ var TodoListItem = require('./TodoListItem.jsx');
 var BottomEdge = require('./bottomEdge.jsx');
 var TodoList = require('../collections/todoList');
 var itemList = new TodoList();
+var currentList = new TodoList();
+var activeList = new TodoList();
+var doneList = new TodoList();
 
 module.exports = React.createClass({
 	getInitialState: function() {
@@ -17,18 +20,35 @@ module.exports = React.createClass({
 	componentWillMount: function () {
     itemList.fetch({
 				success: function(resp){
-				var blah = resp.toJSON();
-				this.setState({list: blah});
+				this.setState({list: resp.toJSON()});
 				}.bind(this),
 				error: function(err) {
 					console.log(err);
 				}
 			})
+			currentList = this.state.list;
   },
 	_upList: function(newTodo) {
 		itemList.add(newTodo);
 		this.setState({list: itemList.toJSON()})
 	},
+	// _downList: function(){
+	// 	// doneList
+	// },
+	// _hotList: function(){
+	// 	// activeList
+	// },
+	// _allList: function(){
+	// 	//itemList?
+	// },
+	// _deList: function(collection){
+	// 	console.log(collection);
+	// },
+	_handleRender: function(collection) {
+	 this.setState({
+		 list: collection
+	 });
+ },
 
 	render: function() {
 			return (
@@ -38,9 +58,12 @@ module.exports = React.createClass({
 							<Paper zDepth={4} id="top-mast">
 							  <AddNew upList={this._upList}/>
 							</Paper>
-						 <Todo list={this.state.list} />
+						 <Todo list={this.state.list} handleRender={this._handleRender}/>
 						</div>
 				</div>
 			)
 	}
 });
+
+// allList={this._allList} downlist={this._downList} hotList={this._hotList}
+// delist={this._delist}

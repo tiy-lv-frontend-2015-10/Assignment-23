@@ -47,18 +47,23 @@ li {
 	left: 10px;
 	top: 15px;
 }
-.text-place {
-	position: absolute;
-	top: 15px;
-	left: 40px;
-}
 .x-out {
 	position: absolute;
 	top: 15px;
 	right: 25px;
 	color: #666;
 }
-.strikeout {
+.active {
+	position: absolute;
+	top: 15px;
+	left: 40px;
+	text-decoration: none;
+	color: black;
+}
+.done {
+	position: absolute;
+	top: 15px;
+	left: 40px;
 	text-decoration: line-through;
 	color: #C4BEBE;
 }
