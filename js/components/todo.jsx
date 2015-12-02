@@ -32,6 +32,7 @@ TodoListsCollection.fetch({
 });
 
 var TodoForm = React.createClass({
+
   render: function() {
     var mapped = this.props.data.map(function(obj) {
     return (
@@ -78,8 +79,12 @@ var FormInput = React.createClass({
   render:function() {
     return(
       <form onSubmit={this._submit}>
+
+
         <input id='input' type ='text' placeholder='Can Only post to parse?'/>
         <input type ='submit' value='Add'/>
+
+
       </form>
     )
   }
