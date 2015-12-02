@@ -4,8 +4,7 @@ var App =require('./app.jsx');
 var Backbone=require('backbone');
 var BackboneParse = require('../../backbone-parse.js');
 var ListItem = require('./listItem.jsx');
-
-
+var listCollection = require('../Model+Collections/models.js');
 var List = Backbone.Model.extend({
 			initialize: function() {
 				console.log("a new model was created");
@@ -13,27 +12,30 @@ var List = Backbone.Model.extend({
 			_parse_class_name: 'List'
 		});
 
-var listCollection = Backbone.Collection.extend({
-			model: List,
-			_parse_class_name: 'List'
-		});	
-
 var Input = React.createClass({
+	getInitialState: function(e) {
+		return {value: ""}
+	},
+	_onChange: function(e) {
+		this.setState({
+			value: e.target.value
+		})
+	},
 	_submit: function(e) {
 		e.preventDefault();
 		var props = this.props;
 		listed = new List();
-		var inputItem=$("#inputItem").val()
-
+		var collection = new listCollection(this.props.item)
 		listed.set({
-			'list': inputItem
+			'list': this.state.value
 		})
 		
 		listed.save(null, {
-	 		success: function(resp) {
+	 		success: function(item) {
+	 			collection.add(item);
 	 			$("#inputItem").val('')
-	 			console.log(resp);
-				props.addInput(inputItem);
+				props.addInput(collection.toJSON());
+				console.log(collection.toJSON());
 				
 	 		}
 	 	});
@@ -43,7 +45,7 @@ var Input = React.createClass({
 		return(	<div>
 				<h1>Todos</h1>
 				<form onSubmit={this._submit}>
-				<input id="inputItem" placeholder="What needs to be done?"/>
+				<input id="inputItem" onChange={this._onChange} value={this.state.value} placeholder="What needs to be done?"/>
 				</form>
 			</div>
 		)

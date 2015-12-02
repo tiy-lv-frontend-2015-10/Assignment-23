@@ -7,23 +7,24 @@
 	padding-bottom: 5px;
 }
 
+ul {
+	padding:0;
+}
 .task {
-	width:494px;
+	width:520px;
 	padding-top: 30px;
 	font-size: 18px;
 	background: #f7f7f7;
 	border-bottom:1px solid #888888;
+	list-style:none;
+	position: relative;
 }
 
 .task:last-child {
 	border-bottom:none;
 }
 
-p {
-	margin:0;
-	padding-left: 26px;
-	padding-bottom: 5px;
-}
+
 
 h1 {
 	color:#EAD7D7;
@@ -42,6 +43,9 @@ h1 {
 	border-radius:15px;
 	background: #fff;
 	border:1px solid #f7f7f7;
+}
 
-
+.delete {
+	position: absolute;
+	right:15px;
 }

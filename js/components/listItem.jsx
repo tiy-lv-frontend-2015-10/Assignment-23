@@ -2,6 +2,7 @@ var React=require('react');
 var ReactDOM=require('react-dom');
 var Backbone = require('backbone');
 var BackboneParse = require('../../backbone-parse.js');
+var Item = require('./item.jsx');
 
 
 
@@ -9,31 +10,16 @@ var BackboneParse = require('../../backbone-parse.js');
 var ListItem = React.createClass({
 	
    	render:function() {
-		var listData=this.props.data.map(function(obj){
-			return(<div key={obj.objectId} className="listContainer">
-						<Sub/>
-						<p className="task">{obj.list}</p>
-
-
-					</div>
-			)
-		})
-		return(<div>{listData}
-				<p className="task">{this.props.val}</p>
-			</div>)
-	}
-
-})
-
-var Sub = React.createClass({
-	_click: function() {
-		console.log("test");
+		var props=this.props.item;
 		
-	},
-	render: function() {
-		return(<input onChange={this._click} className="check" type="checkbox"/>)
-	}
-})
+		return(<ul className="listContainer">
+				{this.props.item.map(function(item){
+					return(<Item item={item.list}/>)
+				})}	
+				</ul>
 
+			)
+		}		
+});
 
 module.exports = ListItem;

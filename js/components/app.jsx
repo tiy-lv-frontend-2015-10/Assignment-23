@@ -3,47 +3,31 @@ var ReactDOM=require('react-dom')
 var Input = require('./input.jsx');
 var ListItem = require('./listItem.jsx');
 var Buttons = require('./buttons.jsx');
+var listCollection = require('../Model+Collections/models.js');
 
-var List = Backbone.Model.extend({
-			initialize: function() {
-				console.log("a new model was created");
-			},
-			_parse_class_name: 'List'
-		});
-		var listCollection = Backbone.Collection.extend({
-			model: List,
-			_parse_class_name: 'List'
-		});
 
-		var lists = new listCollection();
 
-		lists.fetch({
-			success: function(resp) {
-				data=resp.toJSON();
-				console.log(data);
-				ReactDOM.render(<App data={data}/>,document.getElementById('app'));
-			}
-		})
 
 var App = React.createClass({
 	getInitialState: function () {
+		
 		return {
-			data: this.props.data,
-			val: ""
+			item: this.props.item,
+			
 		}
 	},
-	_addInput: function(val) {
+	_addInput: function(collection) {
 		this.setState({
-			val: val
+			item: collection
 		})
 
 	},
 	render: function() {
 		return(
 			<div>
-				<Input addInput={this._addInput}/>
-				<ListItem data={this.state.data} val={this.state.val}/>
-				<Buttons/>
+				<Input item={this.state.item} addInput={this._addInput}/>
+				<ListItem item={this.state.item} addInput={this._addInput}/>
+				
 			</div>
 		)
 	}
