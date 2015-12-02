@@ -1,0 +1,51 @@
+#inputItem {
+	width:502px;
+	padding-top: 30px;
+	font-size: 18px;
+	outline:none;
+	padding-left: 12px;
+	padding-bottom: 5px;
+}
+
+ul {
+	padding:0;
+}
+.task {
+	width:520px;
+	padding-top: 30px;
+	font-size: 18px;
+	background: #f7f7f7;
+	border-bottom:1px solid #888888;
+	list-style:none;
+	position: relative;
+}
+
+.task:last-child {
+	border-bottom:none;
+}
+
+
+
+h1 {
+	color:#EAD7D7;
+	font-weight:normal;
+}
+
+.listContainer {
+	position: relative;
+}
+
+.check {
+	position: absolute;
+	bottom:6px;
+	width:25px;
+	height:25px;
+	border-radius:15px;
+	background: #fff;
+	border:1px solid #f7f7f7;
+}
+
+.delete {
+	position: absolute;
+	right:15px;
+}
