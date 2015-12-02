@@ -31,6 +31,17 @@ ListsCollection.fetch({
 });
 
 var AddForm = React.createClass({
+   _delete: function () {
+    var ListsCollection = new Lists();
+    var item = ListsCollection.get(this.props.objectId);
+    var props = this.props;
+    item.destroy({
+      success: function () {
+        ReactDOM.render(<AddForm data={data}/>, document.getElementById('add'));
+      }
+    });
+  },
+
   render: function() {
     var mapped = this.props.data.map(function(list) {
     return (
@@ -57,6 +68,13 @@ var AddInput = React.createClass({
     })
     item.save(null, {
       success: function(resp) {
+        ListsCollection.fetch({
+  success: function(resp) {
+    var data = resp.toJSON();
+    console.log(data);
+    ReactDOM.render(<AddForm data={data}/>, document.getElementById('add'));
+  }
+});
         console.log('success', resp)
       },
       error: function(err) {
@@ -64,6 +82,7 @@ var AddInput = React.createClass({
       }
     })
     $("#addItem").val('')
+
   },
   render:function() {
     return(
