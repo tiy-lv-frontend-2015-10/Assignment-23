@@ -35,7 +35,7 @@ var TodoForm = React.createClass({
   render: function() {
     var mapped = this.props.data.map(function(obj) {
     return (
-      <div>
+      <div key={obj.objectId}>
         <ul>
           <li>
             {obj.ToDo}
@@ -49,8 +49,8 @@ var TodoForm = React.createClass({
 });
 
 var FormInput = React.createClass({
-  _submit: function() {
-    //e.preventDefault();
+  _submit: function(e) {
+    e.preventDefault();
     var input = $('#input').val();
     var todo = new TodoList();
     todo.set({
@@ -58,6 +58,15 @@ var FormInput = React.createClass({
     })
     todo.save(null, {
       success: function(resp) {
+        TodoListsCollection.fetch({
+  success: function(resp) {
+
+    var data = resp.toJSON();
+    console.log(data);
+    ReactDOM.render(<TodoForm data={data}/>, document.getElementById('listItem'));
+
+  }
+});
         console.log('success', resp)
       },
       error: function(err) {
