@@ -1,18 +1,15 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
-var Backbone = require('backbone');
-var BackboneParse = require('../backbone-parse');
 var ToDoBanner = require('./toDoBanner.jsx');
 var ToDoList = require('./toDoList.jsx');
 var ToDoForm = require('./toDoForm.jsx');
-
-require('../../main.css');
-require('../main.js');
+var toDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoApp = React.createClass({
 	getInitialState: function() {
-		return {items: []};
-	},
+		return {
+			items: this.props.items.toJSON()
+	}
+},
 	updateItems: function(newItem) {
 		var allItems = this.state.items.concat([newItem]);
 		this.setState({items: allItems});
@@ -28,20 +25,9 @@ var ToDoApp = React.createClass({
 	},
 });
 
-var Dos = React.createClass({
-	render: function() {
-		var doData = this.props.doItems.map(function(obj) {
-			return (
-				<div className="doData">
-					<obj.ToDoList}
-				</div>
-				)
-		})
-		return (
-			<div>{doData}</div>
-			)
-	}
-});
+module.exports = ToDoApp;
+
+
 
 
 ReactDOM.render(<ToDoApp />, document.getElementById('toDoDiv'));

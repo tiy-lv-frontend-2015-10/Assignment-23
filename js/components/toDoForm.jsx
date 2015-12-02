@@ -1,18 +1,15 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
-var Backbone = require('backbone');
-var BackboneParse = require('../backbone-parse');
-require('../../main.css');
-require('../main.js');
+var ToDoListModel = reqeuire('../models/toDoListModel.js');
+var ToDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoForm = React.createClass({
 	getInitialState: function() {
-		return {item: ""};
+		return {item: " "};
 	},
 	handleSubmit: function(e) {
 		e.preventDefault();
 		this.props.onFormSubmit(this.state.item);
-		this.setState({item: ""});
+		this.setState({item: " "});
 		React.findDOMNode(this.refs.item).focus();
 		return;
 	},
@@ -31,6 +28,6 @@ var ToDoForm = React.createClass({
 	}
 });
 
-ReactDOM.render(<TodoForm />, document.getElementById('formDiv'));
+ReactDOM.render(<ToDoForm />, document.getElementById('formDiv'));
 
 module.exports = ToDoForm;

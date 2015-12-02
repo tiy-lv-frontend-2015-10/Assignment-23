@@ -1,10 +1,10 @@
 var Backbone = require('backbone');
-//var parseCred = require('./parse-credentials.json');
+var parseCred = require('./parse-credentials.json');
 
 /****** PARSE API ACCESS CREDENTIALS ******/
-var application_id = "efLV9fVDe5jmrjnjGyph9QZMvf16mdWwGfGawP8y";
-var rest_api_key = "LxFtzH8uzVKv2vOjUgL66vohuBvMyQrUQQqz07NC";
-var api_version = "1";
+var application_id = parseCred.applicationId;
+var rest_api_key = parseCred.restApiKey;
+var api_version = parseCred.restApiKey;
 
 /*  
   Replace the toJSON method of Backbone.Model with our version

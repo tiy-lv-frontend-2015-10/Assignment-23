@@ -1,11 +1,6 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
-var Backbone = require('backbone');
-var BackboneParse = require('../backbone-parse');
-//require('/models/toDoListModel.js');
-
-require('../../main.css');
-require('../main.js');
+var ToDoListItem = require('./toDoListItem.jsx');
+var toDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoList = React.createClass({
 	render: function() {
@@ -21,4 +16,4 @@ var ToDoList = React.createClass({
 
 ReactDOM.render(<ToDoList />, document.getElementById('listDiv'));
 
-exports = ToDoList;
+module.exports = ToDoList;
