@@ -1,5 +1,5 @@
 var React = require('react');
-var ToDoListModel = reqeuire('../models/toDoListModel.js');
+//var ToDoListModel = require('../models/toDoListModel.js');
 var ToDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoForm = React.createClass({

@@ -2,7 +2,7 @@ require('../css/main.css');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var ToDoApp = require('./components/toDoApp.jsx');
-var ToDoCollections = require('./collections/toDoCollections');
+var ToDoCollections = require('./collections/toDoCollections.js');
 
 var collection = new ToDoCollections();
 

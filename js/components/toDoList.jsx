@@ -1,6 +1,6 @@
 var React = require('react');
 var ToDoListItem = require('./toDoListItem.jsx');
-var toDoCollections = require('../collections/toDoCollections.js');
+var ToDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoList = React.createClass({
 	render: function() {

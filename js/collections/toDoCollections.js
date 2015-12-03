@@ -1,4 +1,4 @@
-var Backbone = require('../backbone-parse');
+var Backbone = require('../backbone-parse.js');
 var ToDoListModel = require('../models/toDoListModel.js');
 
 var ToDoCollections = Backbone.Collection.extend({

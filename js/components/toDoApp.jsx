@@ -1,10 +1,14 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var ToDoBanner = require('./toDoBanner.jsx');
 var ToDoList = require('./toDoList.jsx');
+//var ToDoListItem = require('./toDoListItem.jsx');
+//var ToDoListModel = require('../models/toDoListModel.js');
 var ToDoForm = require('./toDoForm.jsx');
-var toDoCollections = require('../collections/toDoCollections.js');
+var ToDoCollections = require('../collections/toDoCollections.js');
 
 var ToDoApp = React.createClass({
+
 	getInitialState: function() {
 		return {
 			items: this.props.items.toJSON()
@@ -17,19 +21,14 @@ var ToDoApp = React.createClass({
 	render: function() {
 		return (
 			<div>
-				<ToDoBanner/>
-				<ToDoList items={this.state.items}/>
-				<ToDoForm onFormSubmit={this.updateItems}/>
+				<ToDoBanner />
+				<ToDoList items={this.state.items} />
+				<ToDoForm onFormSubmit={this.updateItems} />
 			</div>
 		);
 	},
 });
 
+ReactDOM.render(<ToDoApp />, document.getElementById('toDoAppDiv'));
+
 module.exports = ToDoApp;
-
-
-
-
-ReactDOM.render(<ToDoApp />, document.getElementById('toDoDiv'));
-
-//module.exports = ToDoApp;
