@@ -1,0 +1,34 @@
+{
+  "name": "assignment-23",
+  "version": "1.0.0",
+  "description": "___This homework is due by 8am, on 11/30/2015___",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KristieWhite/Assignment-23.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KristieWhite/Assignment-23/issues"
+  },
+  "homepage": "https://github.com/KristieWhite/Assignment-23#readme",
+  "dependencies": {
+    "backbone": "^1.2.3",
+    "css-loader": "^0.23.0",
+    "jquery": "^2.1.4",
+    "jquery-ui": "^1.10.5",
+    "json-loader": "^0.5.4",
+    "jsx-loader": "^0.13.2",
+    "material-ui": "^0.13.4",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "react-tap-event-plugin": "^0.2.1",
+    "style-loader": "^0.13.0",
+    "underscore": "^1.8.3",
+    "webpack": "^1.12.9"
+  }
+}
