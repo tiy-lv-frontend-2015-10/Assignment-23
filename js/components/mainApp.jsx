@@ -5,4 +5,4 @@ var ParseData = require('../backbone-parse.js');
 var Input = require('input.jsx');
 var ListForm = require('ListForm');
 
-var MainApp =require('')
+var MainApp =React.
